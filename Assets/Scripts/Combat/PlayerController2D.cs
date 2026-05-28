@@ -78,11 +78,11 @@ namespace Cardwin.Combat
             if (_isDashing)
             {
                 float dir = _facingRight ? 1f : -1f;
-                _rb.linearVelocity = new Vector2(dir * dashSpeed, 0f);
+                _rb.velocity = new Vector2(dir * dashSpeed, 0f);
             }
             else
             {
-                _rb.linearVelocity = new Vector2(_horizontalInput * moveSpeed, _rb.linearVelocity.y);
+                _rb.velocity = new Vector2(_horizontalInput * moveSpeed, _rb.velocity.y);
             }
         }
 
@@ -96,7 +96,7 @@ namespace Cardwin.Combat
             if (_jumpsRemaining <= 0)
                 return;
 
-            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, 0f);
+            _rb.velocity = new Vector2(_rb.velocity.x, 0f);
             _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             _jumpsRemaining--;
         }

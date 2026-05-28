@@ -179,4 +179,16 @@
 - **下一步**：修复场景生成自动绑定 groundCheck 引用，或进入 Stage 3 — Card Effects
 ---
 
+### 2026-05-29 | Stage 2 Fix — linearVelocity → velocity (Unity 2022)
+- **用户需求**：修复 `Rigidbody2D.linearVelocity` 在 Unity 2022.3 不存在的编译错误
+- **修改文件**：
+  - `Assets/Scripts/Combat/PlayerController2D.cs`（4 处替换）
+- **新增类**：无
+- **新增函数**：无
+- **Unity 挂载方式**：不适用
+- **测试步骤**：Unity 打开项目，确认 Safe Mode 退出，Console 无红色 Error
+- **已知问题**：无
+- **下一步**：Stage 3 — Card Effects（创建卡牌数据资产 + 效果执行器实现）
+---
+
 
