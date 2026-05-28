@@ -63,8 +63,8 @@ namespace Cardwin.Editor
             SpriteRenderer sr = ground.AddComponent<SpriteRenderer>();
             sr.sprite = CreateWhiteSquareSprite();
             sr.color = new Color(0.3f, 0.35f, 0.25f);
-            sr.drawMode = SpriteDrawMode.Sliced;
-            sr.size = new Vector2(GroundWidth, GroundThickness);
+            sr.drawMode = SpriteDrawMode.Simple;
+            ground.transform.localScale = new Vector3(GroundWidth, GroundThickness, 1f);
 
             BoxCollider2D bc = ground.AddComponent<BoxCollider2D>();
             bc.size = new Vector2(GroundWidth, GroundThickness);
@@ -86,8 +86,8 @@ namespace Cardwin.Editor
                 SpriteRenderer sr = plat.AddComponent<SpriteRenderer>();
                 sr.sprite = CreateWhiteSquareSprite();
                 sr.color = new Color(0.4f, 0.35f, 0.3f);
-                sr.drawMode = SpriteDrawMode.Sliced;
-                sr.size = new Vector2(widths[i], 0.4f);
+                sr.drawMode = SpriteDrawMode.Simple;
+                plat.transform.localScale = new Vector3(widths[i], 0.4f, 1f);
 
                 BoxCollider2D bc = plat.AddComponent<BoxCollider2D>();
                 bc.size = new Vector2(widths[i], 0.4f);
@@ -120,8 +120,8 @@ namespace Cardwin.Editor
             SpriteRenderer sr = player.AddComponent<SpriteRenderer>();
             sr.sprite = CreateWhiteSquareSprite();
             sr.color = new Color(0.2f, 0.6f, 1f);
-            sr.drawMode = SpriteDrawMode.Sliced;
-            sr.size = new Vector2(1f, 1.5f);
+            sr.drawMode = SpriteDrawMode.Simple;
+            player.transform.localScale = new Vector3(1f, 1.5f, 1f);
 
             Rigidbody2D rb = player.AddComponent<Rigidbody2D>();
             rb.gravityScale = 2.2f;
@@ -158,8 +158,8 @@ namespace Cardwin.Editor
             SpriteRenderer sr = marker.AddComponent<SpriteRenderer>();
             sr.sprite = CreateWhiteSquareSprite();
             sr.color = color;
-            sr.drawMode = SpriteDrawMode.Sliced;
-            sr.size = new Vector2(1f, 2f);
+            sr.drawMode = SpriteDrawMode.Simple;
+            marker.transform.localScale = new Vector3(1f, 2f, 1f);
             sr.sortingOrder = -999;
         }
 
@@ -170,8 +170,6 @@ namespace Cardwin.Editor
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvasObj.AddComponent<CanvasScaler>();
             canvasObj.AddComponent<GraphicRaycaster>();
-
-            Vector2 refRes = new Vector2(1920, 1080);
 
             CreateHUDText(canvasObj.transform, "HP_Text", "HP: 50/50",
                 new Vector2(-580, 480), 28, TextAnchor.UpperLeft);
@@ -192,7 +190,7 @@ namespace Cardwin.Editor
             txt.fontSize = fontSize;
             txt.color = Color.white;
             txt.alignment = alignment;
-            txt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            txt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
 
             RectTransform rt = go.GetComponent<RectTransform>();
             rt.anchorMin = new Vector2(0.5f, 0.5f);

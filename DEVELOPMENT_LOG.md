@@ -138,4 +138,20 @@
 - **下一步**：Stage 2 — Player Movement
 ---
 
+### 2026-05-29 | Stage 1.5 Fix — Arial.ttf & Sprite Tiling Warnings
+- **用户需求**：修复 Arial.ttf 红错；清除 Sprite Tiling 警告
+- **修改文件**：
+  - `Assets/Editor/Cardwin/CardwinSceneBuilder.cs`（6 处修复）
+- **新增类**：无
+- **新增函数**：无
+- **Unity 挂载方式**：不适用
+- **测试步骤**：
+  1. Unity 中点击 Tools > Cardwin > Build Demo Scene
+  2. Console 无红色 Error（Arial.ttf 已修复）
+  3. 无 Sprite Tiling 黄色 Warning（全部改用 Simple + localScale）
+  4. 场景正常打开 Demo_Combat.unity
+- **已知问题**：无
+- **下一步**：Stage 2 — Player Movement
+---
+
 
