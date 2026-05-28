@@ -188,6 +188,10 @@ namespace Cardwin.Editor
             groundCheck.transform.SetParent(player.transform);
             groundCheck.transform.localPosition = new Vector3(0f, -0.8f, 0f);
 
+            PlayerController2D pc = player.GetComponent<PlayerController2D>();
+            pc.groundCheck = groundCheck.transform;
+            pc.groundLayer = 1 << GetGroundLayer();
+
             Selection.activeGameObject = player;
         }
 
