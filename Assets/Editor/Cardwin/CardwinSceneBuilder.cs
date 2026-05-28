@@ -18,25 +18,30 @@ namespace Cardwin.Editor
         [MenuItem("Tools/Cardwin/Build Demo Scene")]
         public static void BuildDemoScene()
         {
+            string sceneDir = Path.GetDirectoryName(ScenePath);
+            if (!Directory.Exists(sceneDir))
+                Directory.CreateDirectory(sceneDir);
+
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
+            CreatePlaceholderSprite();
+
             CreateMainCamera();
-            GameObject ground = CreateGround();
+            CreateGround();
             CreatePlatforms();
             CreateCameraBounds();
             CreatePlayer();
             CreateTestMarkers();
             CreateCanvasHUD();
 
-            CreatePlaceholderSprite();
-
             if (AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) != null)
                 AssetDatabase.DeleteAsset(ScenePath);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.Refresh();
+            EditorSceneManager.OpenScene(ScenePath);
 
-            Debug.Log("[Cardwin] Demo scene built at: " + ScenePath);
+            Debug.Log("[Cardwin] Demo scene built and opened: " + ScenePath);
         }
 
         private static void CreateMainCamera()
@@ -52,13 +57,18 @@ namespace Cardwin.Editor
 
         private static GameObject CreateGround()
         {
-            GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            ground.name = "Ground";
+            GameObject ground = new GameObject("Ground");
             ground.transform.position = new Vector3(0f, GroundY, 0f);
-            ground.transform.localScale = new Vector3(GroundWidth, GroundThickness, 1f);
-            ground.GetComponent<Renderer>().material.color = new Color(0.3f, 0.35f, 0.25f);
-            Object.DestroyImmediate(ground.GetComponent<Collider>());
-            ground.AddComponent<BoxCollider2D>();
+
+            SpriteRenderer sr = ground.AddComponent<SpriteRenderer>();
+            sr.sprite = CreateWhiteSquareSprite();
+            sr.color = new Color(0.3f, 0.35f, 0.25f);
+            sr.drawMode = SpriteDrawMode.Sliced;
+            sr.size = new Vector2(GroundWidth, GroundThickness);
+
+            BoxCollider2D bc = ground.AddComponent<BoxCollider2D>();
+            bc.size = new Vector2(GroundWidth, GroundThickness);
+
             return ground;
         }
 
@@ -70,13 +80,17 @@ namespace Cardwin.Editor
 
             for (int i = 0; i < heights.Length; i++)
             {
-                GameObject plat = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                plat.name = "Platform_" + (i + 1);
+                GameObject plat = new GameObject("Platform_" + (i + 1));
                 plat.transform.position = new Vector3(xs[i], heights[i], 0f);
-                plat.transform.localScale = new Vector3(widths[i], 0.4f, 1f);
-                plat.GetComponent<Renderer>().material.color = new Color(0.4f, 0.35f, 0.3f);
-                Object.DestroyImmediate(plat.GetComponent<Collider>());
-                plat.AddComponent<BoxCollider2D>();
+
+                SpriteRenderer sr = plat.AddComponent<SpriteRenderer>();
+                sr.sprite = CreateWhiteSquareSprite();
+                sr.color = new Color(0.4f, 0.35f, 0.3f);
+                sr.drawMode = SpriteDrawMode.Sliced;
+                sr.size = new Vector2(widths[i], 0.4f);
+
+                BoxCollider2D bc = plat.AddComponent<BoxCollider2D>();
+                bc.size = new Vector2(widths[i], 0.4f);
             }
         }
 
@@ -122,6 +136,10 @@ namespace Cardwin.Editor
             Health health = player.AddComponent<Health>();
             health.maxHealth = 50;
             health.currentHealth = 50;
+
+            GameObject groundCheck = new GameObject("GroundCheck");
+            groundCheck.transform.SetParent(player.transform);
+            groundCheck.transform.localPosition = new Vector3(0f, -0.8f, 0f);
 
             Selection.activeGameObject = player;
         }

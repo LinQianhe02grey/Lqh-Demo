@@ -121,4 +121,21 @@
 - **下一步**：Stage 2 — Player Movement（实现 Move/Jump/Dash 逻辑）
 ---
 
+### 2026-05-29 | Stage 1.5 Fix — Scene Save & Open Logic
+- **用户需求**：修复场景生成后停留在 Untitled 的问题；Ground/Platforms 改用 SpriteRenderer；Player 添加 GroundCheck
+- **修改文件**：
+  - `Assets/Editor/Cardwin/CardwinSceneBuilder.cs`（4 处修复）
+- **新增类**：无
+- **新增函数**：无
+- **Unity 挂载方式**：不适用
+- **测试步骤**：
+  1. Unity 中点击 Tools > Cardwin > Build Demo Scene
+  2. 确认 Hierarchy 顶部显示 Demo_Combat（非 Untitled）
+  3. 确认 Ground 和 Platforms 使用 SpriteRenderer + BoxCollider2D
+  4. 确认 Player 下有 GroundCheck 子对象
+  5. Console 无红色 Error
+- **已知问题**：无
+- **下一步**：Stage 2 — Player Movement
+---
+
 
