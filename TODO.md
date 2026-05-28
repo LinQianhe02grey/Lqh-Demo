@@ -2,25 +2,21 @@
 
 ---
 
-## 当前阶段：Stage 1 — Basic Code Structure (进行中)
+## 当前阶段：Stage 2 — Player Movement (完成)
 
-- [x] 建立目录结构（Core / Combat / Cards / Magazine / Inventory / Shop / UI / Analytics）
-- [x] 创建基础脚本骨架（Core: 3 个类 / Combat: 5 个类 / Cards: 7 个类 / Magazine: 2 个类 / Inventory: 1 个类 / Shop: 2 个类 / UI: 5 个类 / Analytics: 1 个类）
-- [x] 创建 ScriptableObject 卡牌数据基类（CardData）
-- [x] 创建弹夹系统骨架（MagazineSystem）
-- [x] 创建基础 UI 骨架（CombatHUD, MagazinePreviewUI, CardSlotUI, ShopUI, InventoryUI）
-- [x] 创建基础敌人骨架（EnemyController）
-- [x] Stage 1.5：Visual Graybox Scene（Editor 场景生成工具）
+- [x] 实现 Input System 绑定（Move / Jump / Dash — 旧版 Input Manager）
+- [x] 实现 PlayerController2D.Move() 水平移动 + 精灵翻转
+- [x] 实现 PlayerController2D.Jump() 跳跃 + 二段跳
+- [x] 实现 PlayerController2D.StartDash() 冲刺 + 无敌帧 + CD
+- [x] 在灰盒场景中测试移动/跳跃/冲刺
 
 ---
 
-## 下一阶段：Stage 2 — Player Movement
+## 下一阶段：Stage 2.5 — Fix Auto-Binding + Stage 3 — Card Effects
 
-- [ ] 实现 Input System 绑定（Move / Jump / Dash / Fire / UseSelfCard / Reload）
-- [ ] 实现 PlayerController2D.Move() 水平移动 + 精灵翻转
-- [ ] 实现 PlayerController2D.Jump() 跳跃 + 二段跳
-- [ ] 实现 PlayerController2D.StartDash() 冲刺 + 无敌帧 + CD
-- [ ] 在灰盒场景中测试移动/跳跃/冲刺
+- [ ] 修复场景生成时自动绑定 groundCheck 引用和 groundLayer
+- [ ] 创建 ScriptableObject 卡牌数据资产（Strike0 / Guard0 / Heal0 / Focus0）
+- [ ] 实现 CardEffectExecutor.ExecuteOnEnemy / ExecuteOnSelf
 
 ---
 

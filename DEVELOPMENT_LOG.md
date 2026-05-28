@@ -154,4 +154,29 @@
 - **下一步**：Stage 2 — Player Movement
 ---
 
+### 2026-05-29 | Stage 2 — Player Movement
+- **用户需求**：实现左右移动、跳跃、二段跳、冲刺、冲刺无敌、精灵翻转
+- **修改文件**：
+  - `Assets/Scripts/Combat/PlayerController2D.cs`（完整重写：Move/Jump/Dash/FlipSprite/IsGrounded）
+  - `Assets/Scripts/Combat/Health.cs`（新增 IsInvincible + 完整 TakeDamage/Heal/GainBlock/Die）
+  - `Assets/Editor/Cardwin/CardwinSceneBuilder.cs`（新增 Ground Layer 创建/分配、Player gravityScale=3）
+- **新增类**：无
+- **新增函数**：
+  - PlayerController2D: `Update()`, `FixedUpdate()`, `Move()`, `Jump()`, `StartDash()`, `IsGrounded()`, `FlipSprite()`
+  - Health: `SetInvincible()`, `TakeDamage()`(格挡先吸收), `Heal()`(上限保护), `GainBlock()`, `Die()`
+  - CardwinSceneBuilder: `EnsureGroundLayer()`, `GetGroundLayer()`
+- **新增字段**：
+  - PlayerController2D: `dashSpeed`, `groundCheck`, `groundCheckRadius`, `groundLayer`, `invincibleDuringDash`, `_spriteRenderer`, `_health`, `_facingRight`
+  - Health: `IsInvincible` (property)
+- **Unity 挂载方式**：PlayerController2D 的 `groundCheck` 拖入 GroundCheck 子物体；`groundLayer` 设为 Ground
+- **测试步骤**：
+  1. `Tools > Cardwin > Build Demo Scene` 重新生成场景
+  2. Inspector 中把 Player 的 `groundCheck` 绑定 GroundCheck 子物体，`groundLayer` 设为 Ground
+  3. Play：A/D 移动、Space 跳跃/二段跳、LeftShift 冲刺
+  4. 冲刺期间 Health.IsInvincible=true
+  5. 落地后跳跃次数重置
+- **已知问题**：groundCheck 引用和 groundLayer 需手动在 Inspector 绑定（场景生成未自动关联）
+- **下一步**：修复场景生成自动绑定 groundCheck 引用，或进入 Stage 3 — Card Effects
+---
+
 

@@ -14,10 +14,13 @@ namespace Cardwin.Editor
         private const float GroundY = -4f;
         private const float GroundWidth = 40f;
         private const float GroundThickness = 1f;
+        private const string GroundLayerName = "Ground";
 
         [MenuItem("Tools/Cardwin/Build Demo Scene")]
         public static void BuildDemoScene()
         {
+            EnsureGroundLayer();
+
             string sceneDir = Path.GetDirectoryName(ScenePath);
             if (!Directory.Exists(sceneDir))
                 Directory.CreateDirectory(sceneDir);
@@ -25,7 +28,6 @@ namespace Cardwin.Editor
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             CreatePlaceholderSprite();
-
             CreateMainCamera();
             CreateGround();
             CreatePlatforms();
@@ -44,6 +46,49 @@ namespace Cardwin.Editor
             Debug.Log("[Cardwin] Demo scene built and opened: " + ScenePath);
         }
 
+        private static void EnsureGroundLayer()
+        {
+            SerializedObject tagManager = new SerializedObject(
+                AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+            SerializedProperty layers = tagManager.FindProperty("layers");
+
+            bool layerExists = false;
+            int groundLayerIndex = -1;
+            for (int i = 8; i < 32; i++)
+            {
+                if (layers.GetArrayElementAtIndex(i).stringValue == GroundLayerName)
+                {
+                    layerExists = true;
+                    groundLayerIndex = i;
+                    break;
+                }
+            }
+
+            if (!layerExists)
+            {
+                for (int i = 8; i < 32; i++)
+                {
+                    if (string.IsNullOrEmpty(layers.GetArrayElementAtIndex(i).stringValue))
+                    {
+                        layers.GetArrayElementAtIndex(i).stringValue = GroundLayerName;
+                        tagManager.ApplyModifiedProperties();
+                        groundLayerIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            if (groundLayerIndex >= 0)
+            {
+                Debug.Log("[Cardwin] Ground layer set at index: " + groundLayerIndex);
+            }
+        }
+
+        private static int GetGroundLayer()
+        {
+            return LayerMask.NameToLayer(GroundLayerName);
+        }
+
         private static void CreateMainCamera()
         {
             GameObject camObj = new GameObject("MainCamera");
@@ -59,6 +104,7 @@ namespace Cardwin.Editor
         {
             GameObject ground = new GameObject("Ground");
             ground.transform.position = new Vector3(0f, GroundY, 0f);
+            ground.layer = GetGroundLayer();
 
             SpriteRenderer sr = ground.AddComponent<SpriteRenderer>();
             sr.sprite = CreateWhiteSquareSprite();
@@ -82,6 +128,7 @@ namespace Cardwin.Editor
             {
                 GameObject plat = new GameObject("Platform_" + (i + 1));
                 plat.transform.position = new Vector3(xs[i], heights[i], 0f);
+                plat.layer = GetGroundLayer();
 
                 SpriteRenderer sr = plat.AddComponent<SpriteRenderer>();
                 sr.sprite = CreateWhiteSquareSprite();
@@ -124,7 +171,7 @@ namespace Cardwin.Editor
             player.transform.localScale = new Vector3(1f, 1.5f, 1f);
 
             Rigidbody2D rb = player.AddComponent<Rigidbody2D>();
-            rb.gravityScale = 2.2f;
+            rb.gravityScale = 3f;
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
