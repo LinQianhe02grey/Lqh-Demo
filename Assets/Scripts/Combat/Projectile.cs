@@ -7,15 +7,44 @@ namespace Cardwin.Combat
     {
         public float speed = 9f;
         public float lifetime = 3f;
+        public int damage = 10;
 
-        private string _cardId;
         private Vector2 _direction;
         private Rigidbody2D _rb;
+        private float _lifeTimer;
 
-        public void Init(string cardId, Vector2 direction) { }
+        private void Awake()
+        {
+            _rb = GetComponent<Rigidbody2D>();
+        }
 
-        private void OnTriggerEnter2D(Collider2D other) { }
+        public void Init(Vector2 direction, int damageAmount)
+        {
+            _direction = direction.normalized;
+            damage = damageAmount;
+            _lifeTimer = lifetime;
 
-        private void ApplyCardEffects(GameObject target) { }
+            _rb.velocity = _direction * speed;
+
+            if (_direction != Vector2.zero)
+                transform.right = _direction;
+        }
+
+        private void Update()
+        {
+            _lifeTimer -= Time.deltaTime;
+            if (_lifeTimer <= 0f)
+                Destroy(gameObject);
+        }
+
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            Health health = other.GetComponent<Health>();
+            if (health != null)
+            {
+                health.TakeDamage(damage);
+                Destroy(gameObject);
+            }
+        }
     }
 }

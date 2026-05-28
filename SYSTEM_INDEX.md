@@ -21,15 +21,24 @@
 
 | 文件名 | 类名 | 主要职责 | 函数名 | 函数用途 | 被谁调用 | 当前状态 |
 |--------|------|----------|--------|----------|----------|----------|
-| PlayerController2D.cs | `PlayerController2D` | 玩家 2D 控制：移动/跳跃/二段跳/冲刺/精灵翻转 | `Awake()`, `Update()`, `FixedUpdate()`, `Move()`, `Jump()`, `StartDash()`, `IsGrounded()`, `FlipSprite()`, `Fire()`, `UseSelfCard()`, `Reload()` | 初始化组件缓存 / 输入检测+状态更新 / 物理速度应用 / 外部设置水平输入 / 跳跃(含二段跳) / 冲刺+无敌+CD / 地面检测(OverlapCircle) / 根据方向翻转 Sprite / 射击(Stub) / 自用卡牌(Stub) / 换弹(Stub) | Input Manager / Unity Update Loop | 已完成 |
-| Health.cs | `Health` | 通用血量系统：血量/格挡/受击/治疗/死亡/无敌 | `Awake()`, `SetInvincible()`, `TakeDamage()`, `Heal()`, `GainBlock()`, `IsDead()`, `Die()` | 初始化血量 / 设置无敌标记 / 受击(无敌检查+格挡先吸收+死亡判定) / 治疗(上限保护) / 加格挡 / 死亡判定 / 死亡事件触发 | PlayerController2D / EnemyController / Projectile | 已完成 |
-| EnemyController.cs | `EnemyController` | 敌人总控：血量、攻击/移动模式切换、AI Think | `TakeDamage()`, `Heal()`, `GainBlock()`, `IsDead()`, `AttackThink()`, `MoveThink()` | 受击 / 治疗 / AI攻击循环 / AI移动循环 | AI 子系统/Projectile | 骨架完成 |
-| Projectile.cs | `Projectile` | 卡牌投射物：携带 CardId，飞行，命中触发效果 | `Init()`, `OnTriggerEnter2D()`, `ApplyCardEffects()` | 初始化方向/CardId / 碰撞检测 / 效果分发 | CardEffectExecutor | 骨架完成 |
+| PlayerController2D.cs | `PlayerController2D` | 玩家控制：移动/跳跃/二段跳/冲刺/精灵翻转/鼠标方向射击 | `Awake()`, `Update()`, `FixedUpdate()`, `Jump()`, `StartDash()`, `IsGrounded()`, `FlipSprite()`, `Shoot()` | 组件缓存 / 输入+状态 / 物理速度 / 跳跃(二段跳) / 冲刺+无敌+CD / 地面检测 / A/D翻转 / 鼠标方向发射子弹 | Input Manager / Update Loop | 已完成 |
+| Health.cs | `Health` | 通用血量：血量/格挡/受击/治疗/死亡/无敌 | `Awake()`, `SetInvincible()`, `TakeDamage()`, `Heal()`, `GainBlock()`, `IsDead()`, `Die()` | 初始化 / 无敌标记 / 受击(无敌检查+格挡先吸收+死亡) / 治疗(上限保护) / 格挡 / 死亡判定 / 死亡 | PlayerController2D / EnemyController / Projectile | 已完成 |
+| EnemyController.cs | `EnemyController` | 敌人：追逐玩家/接触伤害/冷却/Health管理 | `Awake()`, `Start()`, `Update()`, `OnCollisionStay2D()` | 组件缓存 / 查找Player / 追逐移动+死亡检查 / 接触玩家伤害(冷却) | Combat System | 已完成 |
+| Projectile.cs | `Projectile` | 子弹：方向飞行/命中伤害/自动销毁/朝向旋转 | `Awake()`, `Init()`, `Update()`, `OnTriggerEnter2D()` | 缓存Rigidbody / 初始化方向速度伤害 / 生命周期销毁 / 命中Health扣血 | PlayerController2D.Shoot | 已完成 |
 | DamageInfo.cs | `DamageInfo` (struct) | 伤害数据结构：基础伤害+Focus加成+来源 | `TotalDamage` (property) | 计算最终伤害值 | Combat 系统 | 骨架完成 |
 
 ---
 
-## 3. Card System
+## 3. Camera System
+摄像机跟随、边界限制。
+
+| 文件名 | 类名 | 主要职责 | 函数名 | 函数用途 | 被谁调用 | 当前状态 |
+|--------|------|----------|--------|----------|----------|----------|
+| CameraFollow2D.cs | `CameraFollow2D` | 平滑跟随玩家，边界钳制 | `Awake()`, `LateUpdate()`, `FindTargetIfMissing()` | 缓存Camera / 跟随+边界Clamp / 按Tag查找Player并警告 | Camera Update Loop | 已完成 |
+
+---
+
+## 4. Card System
 ScriptableObject 卡牌数据定义、卡牌效果接口与实现。
 
 | 文件名 | 类名 | 主要职责 | 函数名 | 函数用途 | 被谁调用 | 当前状态 |
@@ -46,7 +55,7 @@ ScriptableObject 卡牌数据定义、卡牌效果接口与实现。
 
 ---
 
-## 4. Magazine System
+## 5. Magazine System
 弹夹管理、弹药消耗、换弹、下 N 发预览。
 
 | 文件名 | 类名 | 主要职责 | 函数名 | 函数用途 | 被谁调用 | 当前状态 |
@@ -56,7 +65,7 @@ ScriptableObject 卡牌数据定义、卡牌效果接口与实现。
 
 ---
 
-## 5. Inventory System
+## 6. Inventory System
 背包存储、卡牌增删查、上场/下场。
 
 | 文件名 | 类名 | 主要职责 | 函数名 | 函数用途 | 被谁调用 | 当前状态 |
@@ -66,7 +75,7 @@ ScriptableObject 卡牌数据定义、卡牌效果接口与实现。
 
 ---
 
-## 6. Shop System
+## 7. Shop System
 商店、购买、出售、刷新。
 
 | 文件名 | 类名 | 主要职责 | 函数名 | 函数用途 | 被谁调用 | 当前状态 |
@@ -76,7 +85,7 @@ ScriptableObject 卡牌数据定义、卡牌效果接口与实现。
 
 ---
 
-## 7. UI System
+## 8. UI System
 HUD、卡牌预览条、血条、商店界面、背包界面。
 
 | 文件名 | 类名 | 主要职责 | 函数名 | 函数用途 | 被谁调用 | 当前状态 |
@@ -89,7 +98,7 @@ HUD、卡牌预览条、血条、商店界面、背包界面。
 
 ---
 
-## 8. Analytics System
+## 9. Analytics System
 战斗数据采集与统计。
 
 | 文件名 | 类名 | 主要职责 | 函数名 | 函数用途 | 被谁调用 | 当前状态 |
@@ -99,9 +108,16 @@ HUD、卡牌预览条、血条、商店界面、背包界面。
 
 ---
 
-## 9. Editor
+## 10. Editor
 编辑器工具脚本。
 
 | 文件名 | 类名 | 主要职责 | 函数名 | 函数用途 | 被谁调用 | 当前状态 |
 |--------|------|----------|--------|----------|----------|----------|
-| CardwinSceneBuilder.cs | `CardwinSceneBuilder` | 菜单工具：自动生成 Demo 战斗场景 + Ground Layer | `BuildDemoScene()`, `EnsureGroundLayer()`, `GetGroundLayer()`, `CreateMainCamera()`, `CreateGround()`, `CreatePlatforms()`, `CreateCameraBounds()`, `CreatePlayer()`, `CreateTestMarkers()`, `CreateMarker()`, `CreateCanvasHUD()`, `CreateHUDText()`, `CreateWhiteSquareSprite()`, `CreatePlaceholderSprite()` | 菜单入口 / 创建 Ground Layer / 获取 Ground Layer 索引 / 创建摄像机 / 地面(含Ground层) / 平台(含Ground层) / 相机边界 / 玩家(含所有组件+GroundCheck) / 三个标记点 / 单个标记 / Canvas+HUD文字 / HUD文字生成 / 4px白色方块Sprite / PNG占位图 | 开发者菜单 Tools/Cardwin/Build Demo Scene | 已完成 |
+| CardwinSceneBuilder.cs | `CardwinSceneBuilder` | 备份场景生成工具（非日常使用） | `BuildDemoScene()`, `EnsureGroundLayer()`, `GetGroundLayer()`, `CreateMainCamera()`, `CreateGround()`, `CreatePlatforms()`, `CreateCameraBounds()`, `CreatePlayer()`, `CreateTestMarkers()`, `CreateMarker()`, `CreateCanvasHUD()`, `CreateHUDText()`, `CreateWhiteSquareSprite()`, `CreatePlaceholderSprite()` | 菜单入口 / Ground Layer / 各对象创建 | 开发者菜单 Tools/Cardwin/Build Demo Scene | 已完成（备份工具） |
+
+## 11. Scenes
+
+| 场景名 | 用途 | 当前状态 |
+|--------|------|----------|
+| `Demo_Combat.unity` | 主要测试场景，日常开发唯一使用的场景 | 活跃 |
+| `CardwinSceneBuilder` | 备份/重建工具，仅在用户明确要求时运行 | 备份 |

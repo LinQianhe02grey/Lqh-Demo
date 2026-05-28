@@ -191,4 +191,54 @@
 - **下一步**：Stage 3 — Card Effects（创建卡牌数据资产 + 效果执行器实现）
 ---
 
+### 2026-05-29 | Doc Update — Scene Lock & Working Rules
+- **用户需求**：锁定 Demo_Combat.unity 为主场景，禁止自动重建；新增 Camera 子系统
+- **修改文件**：
+  - `AGENTS.md`（新增场景规则 10、Camera 子系统）
+  - `SYSTEM_INDEX.md`（新增 Camera 系统、Scenes 章节，更新 Combat/Editor 条目）
+- **新增类**：无
+- **新增函数**：无
+- **Unity 挂载方式**：不适用
+- **测试步骤**：文档审查
+- **已知问题**：无
+- **下一步**：Stage 3 — Basic Combat Loop
+---
+
+### 2026-05-29 | Stage 3 — Basic Combat Loop + Stage 3.1 — Camera Follow
+- **用户需求**：临时射击(鼠标方向)、子弹命中敌人扣血、敌人追逐+接触伤害、摄像机跟随
+- **修改文件**：
+  - `Assets/Scripts/Combat/Projectile.cs`（完整重写：Init/Update/OnTriggerEnter2D）
+  - `Assets/Scripts/Combat/EnemyController.cs`（完整重写：追逐/接触伤害/Health组件）
+  - `Assets/Scripts/Combat/PlayerController2D.cs`（新增 Shoot() 鼠标方向射击 + firePoint/projectilePrefab）
+  - 新增 `Assets/Scripts/Camera/CameraFollow2D.cs`
+  - 修改 `SYSTEM_INDEX.md`、`DEVELOPMENT_LOG.md`、`TODO.md`
+- **新增类**：`CameraFollow2D`
+- **新增字段**：
+  - PlayerController2D: `firePoint`, `projectilePrefab`, `testProjectileDamage`
+  - Projectile: `damage`
+  - EnemyController: `moveSpeed`, `contactDamage`, `attackCooldown`, `_rb`, `_health`, `_player`, `_attackTimer`
+  - CameraFollow2D: `target`, `offset`, `smoothTime`, `useBounds`, `minBounds`, `maxBounds`
+- **新增函数**：
+  - PlayerController2D: `Shoot()`（鼠标方向发射子弹）
+  - Projectile: `Awake()`, `Init()`, `Update()`, `OnTriggerEnter2D()` — 全部有实现
+  - EnemyController: `Awake()`, `Start()`, `Update()`, `OnCollisionStay2D()` — 全部有实现
+  - CameraFollow2D: `Awake()`, `LateUpdate()`, `FindTargetIfMissing()`
+- **Unity 挂载方式**：
+  - MainCamera: 添加 CameraFollow2D，target → Player，offset=(0,1.5,-10)，useBounds=true
+  - Player: Tag 设为 Player；FirePoint 子物体(位置在前方约 0.6,0,0)；projectilePrefab 指向 Projectile 预制体
+  - Enemy: 需要 SpriteRenderer + Rigidbody2D + BoxCollider2D + Health + EnemyController
+  - Projectile Prefab: SpriteRenderer + Rigidbody2D + CircleCollider2D(isTrigger) + Projectile
+- **测试步骤**：
+  1. 手动创建 Enemy (设 Player tag)，创建 Projectile Prefab
+  2. Player Inspector 绑定 firePoint(子物体) 和 projectilePrefab
+  3. MainCamera 添加 CameraFollow2D，target → Player
+  4. Play：AD移动/跳跃/冲刺正常；左键鼠标方向发射子弹；子弹命中敌人扣血；敌人接触玩家扣血；冲刺无敌不扣血；摄像机跟随
+- **已知问题**：
+  - 场景中暂无 Enemy 实例，需手动在 Hierarchy 创建
+  - 场景中暂无 Projectile Prefab，需手动创建并拖入 PlayerController2D
+  - 射击弹药无限，未接入 MagazineSystem（Stage 4 实现）
+  - 敌人 AI 为简单追逐，无巡逻/状态机（后续扩展）
+- **下一步**：Stage 4 — Magazine + CardData 接入射击系统
+---
+
 

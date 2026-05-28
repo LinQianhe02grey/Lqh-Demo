@@ -2,21 +2,30 @@
 
 ---
 
-## 当前阶段：Stage 2 — Player Movement (完成)
+## 当前阶段：Stage 3 — Basic Combat Loop (完成)
 
-- [x] 实现 Input System 绑定（Move / Jump / Dash — 旧版 Input Manager）
-- [x] 实现 PlayerController2D.Move() 水平移动 + 精灵翻转
-- [x] 实现 PlayerController2D.Jump() 跳跃 + 二段跳
-- [x] 实现 PlayerController2D.StartDash() 冲刺 + 无敌帧 + CD
-- [x] 在灰盒场景中测试移动/跳跃/冲刺
+- [x] Shot: 鼠标方向发射子弹 (Projectile.Init + Shoot)
+- [x] Enemy: 追逐玩家 + 接触伤害 + Health
+- [x] Camera: 平滑跟随 + 边界限制 (CameraFollow2D)
+- [x] 文档：锁定 Demo_Combat.unity 为主场景
 
 ---
 
-## 下一阶段：Stage 2.5 — Fix Auto-Binding + Stage 3 — Card Effects
+## 当前待办：场景手动挂载
 
-- [ ] 修复场景生成时自动绑定 groundCheck 引用和 groundLayer
-- [ ] 创建 ScriptableObject 卡牌数据资产（Strike0 / Guard0 / Heal0 / Focus0）
-- [ ] 实现 CardEffectExecutor.ExecuteOnEnemy / ExecuteOnSelf
+- [ ] 创建 Projectile Prefab（SpriteRenderer + Rigidbody2D(gravity=0) + CircleCollider2D(isTrigger) + Projectile）
+- [ ] Player FirePoint 子物体创建 + PlayerController2D 绑定 firePoint / projectilePrefab
+- [ ] 创建测试 Enemy（手动或在 Play 时自动生成）
+- [ ] MainCamera 添加 CameraFollow2D
+
+---
+
+## 下一阶段：Stage 4 — Magazine + CardData
+
+- [ ] 创建 4 张 ScriptableObject 卡牌数据资产
+- [ ] 实现 MagazineSystem 弹药池/弹夹/换弹/预览
+- [ ] PlayerController2D 接入 MagazineSystem（替换临时射击）
+- [ ] MagazinePreviewUI 显示下 3 发预览
 
 ---
 

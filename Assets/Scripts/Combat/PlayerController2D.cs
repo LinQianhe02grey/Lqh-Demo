@@ -23,6 +23,11 @@ namespace Cardwin.Combat
         public float groundCheckRadius = 0.15f;
         public LayerMask groundLayer;
 
+        [Header("Temp Shooting")]
+        public Transform firePoint;
+        public GameObject projectilePrefab;
+        public int testProjectileDamage = 10;
+
         private Rigidbody2D _rb;
         private SpriteRenderer _spriteRenderer;
         private Health _health;
@@ -68,6 +73,9 @@ namespace Cardwin.Combat
 
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                     StartDash();
+
+                if (Input.GetMouseButtonDown(0))
+                    Shoot();
             }
 
             FlipSprite();
@@ -141,8 +149,19 @@ namespace Cardwin.Combat
             }
         }
 
-        public void Fire() { }
-        public void UseSelfCard() { }
-        public void Reload() { }
+        private void Shoot()
+        {
+            if (firePoint == null || projectilePrefab == null)
+                return;
+
+            Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mouseWorld.z = 0f;
+            Vector2 direction = (mouseWorld - firePoint.position).normalized;
+
+            GameObject projObj = Instantiate(projectilePrefab, firePoint.position, Quaternion.identity);
+            Projectile proj = projObj.GetComponent<Projectile>();
+            if (proj != null)
+                proj.Init(direction, testProjectileDamage);
+        }
     }
 }

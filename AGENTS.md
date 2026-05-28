@@ -12,6 +12,7 @@
 8. **系统拆分**：按以下子系统组织代码：
    - `Core` — 游戏入口、全局状态、事件总控
    - `Combat` — 伤害计算、格挡、治疗、命中等
+   - `Camera` — 摄像机跟随、边界限制
    - `Cards` — ScriptableObject 卡牌定义、卡牌效果接口
    - `Magazine` — 弹夹、换弹、预览
    - `Inventory` — 背包存储
@@ -19,6 +20,14 @@
    - `UI` — HUD、预览条、血条、商店界面
    - `Analytics` — 战斗数据统计
 9. **Demo 优先**：优先保证 Demo 可玩，不要过度架构。
+
+10. **场景规则**：
+    - `Demo_Combat.unity` 是当前主要工作场景。
+    - 不要重建或覆盖 `Demo_Combat.unity`，除非用户明确要求。
+    - 不要自动运行 `Tools/Cardwin/Build Demo Scene`。
+    - `CardwinSceneBuilder` 仅作为备份/重建工具。
+    - 后续开发应修改脚本并使用现有场景。
+    - 如需场景对象引用，优先使用运行时按名称自动查找或给出清晰的 Inspector 设置说明。
 
 ## 文件命名规范
 
