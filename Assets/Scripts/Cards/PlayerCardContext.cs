@@ -1,4 +1,5 @@
 using UnityEngine;
+using Cardwin.Combat;
 
 namespace Cardwin.Cards
 {

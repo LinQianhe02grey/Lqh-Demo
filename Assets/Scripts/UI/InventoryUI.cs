@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Cardwin.Inventory;
 
 namespace Cardwin.UI
 {
