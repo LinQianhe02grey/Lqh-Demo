@@ -2,24 +2,25 @@
 
 ---
 
-## 当前阶段：Stage 0 — Project Governance
+## 当前阶段：Stage 1 — Basic Code Structure (进行中)
 
-- [x] 创建 AGENTS.md（开发约束）
-- [x] 创建 SYSTEM_INDEX.md（系统索引）
-- [x] 创建 DEVELOPMENT_LOG.md（开发日志）
-- [x] 创建 TODO.md（任务清单）
-- [x] 创建 UE5_REFERENCE_INDEX.md（UE5 参考索引）
+- [x] 建立目录结构（Core / Combat / Cards / Magazine / Inventory / Shop / UI / Analytics）
+- [x] 创建基础脚本骨架（Core: 3 个类 / Combat: 5 个类 / Cards: 7 个类 / Magazine: 2 个类 / Inventory: 1 个类 / Shop: 2 个类 / UI: 5 个类 / Analytics: 1 个类）
+- [x] 创建 ScriptableObject 卡牌数据基类（CardData）
+- [x] 创建弹夹系统骨架（MagazineSystem）
+- [x] 创建基础 UI 骨架（CombatHUD, MagazinePreviewUI, CardSlotUI, ShopUI, InventoryUI）
+- [x] 创建基础敌人骨架（EnemyController）
+- [x] Stage 1.5：Visual Graybox Scene（Editor 场景生成工具）
 
 ---
 
-## 下一阶段：Stage 1 — Basic Code Structure
+## 下一阶段：Stage 2 — Player Movement
 
-- [ ] 建立目录结构（Core / Combat / Cards / Magazine / Inventory / Shop / UI / Analytics）
-- [ ] 创建基础播放器控制器（移动、跳跃、二段跳、冲刺、射击、换弹）
-- [ ] 创建 ScriptableObject 卡牌数据基类
-- [ ] 创建弹夹系统
-- [ ] 创建基础 UI（HUD、预览条）
-- [ ] 创建基础敌人（血量、受击、死亡）
+- [ ] 实现 Input System 绑定（Move / Jump / Dash / Fire / UseSelfCard / Reload）
+- [ ] 实现 PlayerController2D.Move() 水平移动 + 精灵翻转
+- [ ] 实现 PlayerController2D.Jump() 跳跃 + 二段跳
+- [ ] 实现 PlayerController2D.StartDash() 冲刺 + 无敌帧 + CD
+- [ ] 在灰盒场景中测试移动/跳跃/冲刺
 
 ---
 
