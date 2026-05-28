@@ -104,4 +104,21 @@
 - **下一步**：Stage 2 — Player Movement（实现 Move/Jump/Dash 逻辑）
 ---
 
+### 2026-05-29 | Stage 1 Fix — Compile Error Resolution
+- **用户需求**：修复 3 个编译错误/警告，不新增玩法功能
+- **修改文件**：
+  - `Assets/Editor/Cardwin/CardwinSceneBuilder.cs`（3 处修复）
+  - `Assets/Scripts/Combat/PlayerController2D.cs`（1 处修复）
+- **新增类**：无
+- **新增函数**：无
+- **Unity 挂载方式**：不适用
+- **测试步骤**：
+  1. 在 Unity 中打开项目，等待编译完成
+  2. 确认 Console 窗口无红色 Error
+  3. 菜单栏应出现 Tools > Cardwin > Build Demo Scene
+  4. 点击菜单生成 Demo_Combat.unity 场景
+- **已知问题**：无（编译错误已全部修复）
+- **下一步**：Stage 2 — Player Movement（实现 Move/Jump/Dash 逻辑）
+---
+
 

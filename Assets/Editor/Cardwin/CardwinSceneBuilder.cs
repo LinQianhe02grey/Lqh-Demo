@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEditor;
@@ -17,7 +18,7 @@ namespace Cardwin.Editor
         [MenuItem("Tools/Cardwin/Build Demo Scene")]
         public static void BuildDemoScene()
         {
-            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneGameMode.Single);
+            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             CreateMainCamera();
             GameObject ground = CreateGround();
@@ -29,7 +30,7 @@ namespace Cardwin.Editor
 
             CreatePlaceholderSprite();
 
-            if (AssetDatabase.LoadAssetAtPath<Scene>(ScenePath) != null)
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath) != null)
                 AssetDatabase.DeleteAsset(ScenePath);
 
             EditorSceneManager.SaveScene(scene, ScenePath);

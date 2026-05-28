@@ -18,8 +18,6 @@ namespace Cardwin.Combat
         private bool _isDashing;
         private float _dashTimer;
         private float _dashCooldownTimer;
-        private bool _facingRight = true;
-
         private void Awake() { _rb = GetComponent<Rigidbody2D>(); }
 
         public void Move(float horizontalInput) { }
