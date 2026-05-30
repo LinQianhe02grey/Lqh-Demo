@@ -84,6 +84,7 @@ namespace Cardwin.Combat
         {
             _isDead = true;
             OnDeath?.Invoke();
+            Destroy(gameObject, 0.1f);
         }
     }
 }

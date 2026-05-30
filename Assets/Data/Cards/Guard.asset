@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e724b40ffe5086147b74fe8b844a5534, type: 3}
+  m_Name: Guard
+  m_EditorClassIdentifier: 
+  cardId: Guard_001
+  cardName: Guard
+  cardType: 1
+  rarity: 0
+  icon: {fileID: 0}
+  damage: 5
+  block: 10
+  heal: 0
+  focusGain: 0
+  leftClickEffect: 1
+  rightClickEffect: 2
+  projectilePrefab: {fileID: 5967733766968780224, guid: a471771a7fafb254bba5aa2d75ead477, type: 3}
+  description: "\u5DE6\u952E\u53D1\u5C04\u4F4E\u4F24\u5BB3\u5B50\u5F39\uFF0C\u53F3\u952E\u83B7\u5F97
+    10 \u70B9\u62A4\u76FE\u3002"

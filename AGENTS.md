@@ -22,12 +22,12 @@
 9. **Demo 优先**：优先保证 Demo 可玩，不要过度架构。
 
 10. **场景规则**：
-    - `Demo_Combat.unity` 是当前主要工作场景。
-    - 不要重建或覆盖 `Demo_Combat.unity`，除非用户明确要求。
-    - 不要自动运行 `Tools/Cardwin/Build Demo Scene`。
-    - `CardwinSceneBuilder` 仅作为备份/重建工具。
-    - 后续开发应修改脚本并使用现有场景。
-    - 如需场景对象引用，优先使用运行时按名称自动查找或给出清晰的 Inspector 设置说明。
+    - `Demo_Combat.unity` 是当前主要工作场景（Stage 3.5 干净重建，Stage 4 后锁定）。
+    - **禁止重建或覆盖 `Demo_Combat.unity`**，除非用户明确要求。
+    - `Tools/Cardwin/Rebuild Clean Demo Scene` 已禁用（显示提示弹窗），仅作为备份恢复入口。
+    - `CardwinSceneBuilder` 是 stubbed disabled tool — 不再包含任何场景生成逻辑。
+    - 后续开发应修改脚本并使用现有场景，不得依赖重建。
+    - 如需场景对象引用，优先使用运行时按名称自动查找（如 `GameObject.FindWithTag`）或给出清晰的 Inspector 设置说明。
 
 ## 文件命名规范
 

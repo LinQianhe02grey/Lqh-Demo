@@ -12,8 +12,8 @@ namespace Cardwin.Cards
         }
 
         public string CardId => CardData.cardId;
-        public string DisplayName => CardData.displayName;
-        public int Cost => CardData.cost;
-        public bool IsSelfTarget => CardData.IsSelfTarget();
+        public string DisplayName => CardData.cardName;
+        public int Cost => 0;
+        public bool IsSelfTarget => false;
     }
 }

@@ -18,7 +18,8 @@ namespace Cardwin.Combat
         {
             _rb = GetComponent<Rigidbody2D>();
             _health = GetComponent<Health>();
-            _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            _rb.bodyType = RigidbodyType2D.Kinematic;
+            _rb.freezeRotation = true;
         }
 
         private void Start()
@@ -41,26 +42,32 @@ namespace Cardwin.Combat
 
             Vector2 toPlayer = _player.position - transform.position;
             float dir = toPlayer.x > 0f ? 1f : -1f;
-            _rb.velocity = new Vector2(dir * moveSpeed, _rb.velocity.y);
+
+            Vector2 newPos = _rb.position + new Vector2(dir * moveSpeed * Time.deltaTime, 0f);
+            _rb.MovePosition(newPos);
 
             Vector3 scale = transform.localScale;
             scale.x = Mathf.Abs(scale.x) * dir;
             transform.localScale = scale;
         }
 
-        private void OnCollisionStay2D(Collision2D collision)
+        private void OnTriggerStay2D(Collider2D other)
         {
-            if (collision.gameObject.CompareTag("Player"))
+            TryDamagePlayer(other.gameObject);
+        }
+
+        private void TryDamagePlayer(GameObject other)
+        {
+            if (!other.CompareTag("Player"))
+                return;
+            if (_attackTimer > 0f)
+                return;
+
+            Health playerHealth = other.GetComponent<Health>();
+            if (playerHealth != null)
             {
-                if (_attackTimer <= 0f)
-                {
-                    Health playerHealth = collision.gameObject.GetComponent<Health>();
-                    if (playerHealth != null)
-                    {
-                        playerHealth.TakeDamage(contactDamage);
-                        _attackTimer = attackCooldown;
-                    }
-                }
+                playerHealth.TakeDamage(contactDamage);
+                _attackTimer = attackCooldown;
             }
         }
     }

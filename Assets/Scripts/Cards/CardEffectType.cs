@@ -2,16 +2,10 @@ namespace Cardwin.Cards
 {
     public enum CardEffectType
     {
+        None,
         Damage,
+        Block,
         Heal,
-        GainBlock,
-        ApplyStatus,
-        DrawCards,
-        DiscardCards,
-        RemoveStatus,
-        MoveUnit,
-        GainEnergy,
-        CreateCard,
-        CustomCue
+        Focus
     }
 }

@@ -1,13 +1,13 @@
 using UnityEngine;
 
-namespace Cardwin.Camera
+namespace Cardwin.Cameras
 {
     public class CameraFollow2D : MonoBehaviour
     {
         public Transform target;
         public Vector3 offset = new Vector3(0f, 1.5f, -10f);
         public float smoothTime = 0.15f;
-        public bool useBounds = true;
+        public bool useBounds = false;
         public Vector2 minBounds = new Vector2(-10f, -3f);
         public Vector2 maxBounds = new Vector2(30f, 8f);
 
