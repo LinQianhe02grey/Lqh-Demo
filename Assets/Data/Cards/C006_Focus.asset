@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e724b40ffe5086147b74fe8b844a5534, type: 3}
+  m_Name: C006_Focus
+  m_EditorClassIdentifier: 
+  cardId: C006
+  cardName: Focus
+  cardType: 2
+  rarity: 0
+  icon: {fileID: 0}
+  damage: 0
+  block: 0
+  heal: 0
+  focusGain: 1
+  leftClickEffect: 4
+  rightClickEffect: 4
+  projectilePrefab: {fileID: 0}
+  description: 
+  useTarget: 1
+  goodCost: 1
+  evilCost: 0
+  baseEffectDescription: "\u4E0B\u4E00\u53D1\u653B\u51FB\u589E\u4F24"
+  finalValueRaw: 50%
+  finalValue: 50
+  valueUnit: "\u589E\u4F24%"
+  cooldownLimit: "\u53EA\u5F71\u54CD\u4E0B\u4E00\u53D1"
+  role: "\u7206\u53D1\u51C6\u5907"
+  riskNotes: "\u914D\u5408\u653B\u51FB\u5F39"
+  enabled: 1
+  implemented: 1
+  isImportedFromCsv: 1

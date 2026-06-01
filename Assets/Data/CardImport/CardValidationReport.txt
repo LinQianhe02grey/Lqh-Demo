@@ -1,0 +1,84 @@
+﻿Cardwin Card Config Validation Report
+Generated At: 2026-06-01 13:04:00
+
+Summary:
+
+* Assets Scanned: 12
+* Database Cards: 12
+* Errors: 0
+* Warnings: 42
+* Infos: 7
+
+Errors:
+
+  (none)
+
+Warnings:
+
+  1. Empty description card=C001 Strike
+  2. Missing icon for card=C001 Strike
+  3. Empty description card=C002 Pierce
+  4. Missing icon for card=C002 Pierce
+  5. Empty description card=C003 Burst
+  6. Missing icon for card=C003 Burst
+  7. Empty description card=C004 Guard
+  8. Missing icon for card=C004 Guard
+  9. Empty description card=C005 Heal
+  10. Missing icon for card=C005 Heal
+  11. Empty description card=C006 Focus
+  12. Missing icon for card=C006 Focus
+  13. Empty description card=C007 Evil Shot
+  14. Missing icon for card=C007 Evil Shot
+  15. Empty description card=C008 Mercy Shield
+  16. Missing icon for card=C008 Mercy Shield
+  17. Empty description card=C009 Combo Spark
+  18. Missing icon for card=C009 Combo Spark
+  19. Empty description card=C010 Quick Reload
+  20. Missing icon for card=C010 Quick Reload
+  21. Empty description card=C011 Weakness Mark
+  22. Missing icon for card=C011 Weakness Mark
+  23. Empty description card=C012 Aerial Mark
+  24. Missing icon for card=C012 Aerial Mark
+  25. Card C009 Combo Spark uses unimplemented effect ComboSpark (leftClickEffect) but implemented=true
+  26. Card C009 Combo Spark uses unimplemented effect ComboSpark (rightClickEffect) but implemented=true
+  27. Card C010 Quick Reload uses unimplemented effect QuickReload (leftClickEffect) but implemented=true
+  28. Card C010 Quick Reload uses unimplemented effect QuickReload (rightClickEffect) but implemented=true
+  29. Card C011 Weakness Mark uses unimplemented effect WeaknessMark (leftClickEffect) but implemented=true
+  30. Card C011 Weakness Mark uses unimplemented effect WeaknessMark (rightClickEffect) but implemented=true
+  31. Card C012 Aerial Mark uses unimplemented effect AerialMark (leftClickEffect) but implemented=true
+  32. Card C012 Aerial Mark uses unimplemented effect AerialMark (rightClickEffect) but implemented=true
+  33. Card C006 Focus finalValue=50 > 3.0 (possible percent value)
+  34. Card C006 Focus has percent value raw=50% — verify not accidentally converted
+  35. Card C008 Mercy Shield finalValue=2500 > 3.0 (possible percent value)
+  36. Card C008 Mercy Shield has percent value raw=2500% — verify not accidentally converted
+  37. Card C010 Quick Reload finalValue=200 > 3.0 (possible percent value)
+  38. Card C010 Quick Reload has percent value raw=200% — verify not accidentally converted
+  39. Card C011 Weakness Mark finalValue=20 > 3.0 (possible percent value)
+  40. Card C011 Weakness Mark has percent value raw=20% — verify not accidentally converted
+  41. Card C012 Aerial Mark finalValue=30 > 3.0 (possible percent value)
+  42. Card C012 Aerial Mark has percent value raw=30% — verify not accidentally converted
+
+Infos:
+
+  1. Inventory test stock: 12 formal cards in DB × 20 = 240 expected
+  2. Inventory test stock: 12 formal cards, expected 240 total
+  3. Legacy card assets archived: 4
+  4. Legacy card archived (not in DB): Focus.asset
+  5. Legacy card archived (not in DB): Guard.asset
+  6. Legacy card archived (not in DB): Heal.asset
+  7. Legacy card archived (not in DB): Strike.asset
+
+Card List:
+
+  C001 | Strike | Enemy | Common | Enabled | Implemented
+  C002 | Pierce | Enemy | Common | Enabled | Implemented
+  C003 | Burst | Enemy | Rare | Enabled | Implemented
+  C004 | Guard | Self | Common | Enabled | Implemented
+  C005 | Heal | Self | Common | Enabled | Implemented
+  C006 | Focus | Self | Common | Enabled | Implemented
+  C007 | Evil Shot | Enemy | Epic | Enabled | Implemented
+  C008 | Mercy Shield | Self | Rare | Enabled | Implemented
+  C009 | Combo Spark | Self | Rare | Enabled | Implemented
+  C010 | Quick Reload | Self | Rare | Enabled | Implemented
+  C011 | Weakness Mark | Enemy | Rare | Enabled | Implemented
+  C012 | Aerial Mark | Enemy | Common | Enabled | Implemented

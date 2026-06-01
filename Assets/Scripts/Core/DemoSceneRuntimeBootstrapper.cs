@@ -8,6 +8,7 @@ namespace Cardwin.Core
         [Header("Object Names")]
         public string playerName = "Player";
         public string cameraName = "MainCamera";
+        public string spawnPointName = "SpawnPoint_Player";
         public string enemyNameContains = "Enemy";
 
         [Header("Camera Settings")]
@@ -19,6 +20,12 @@ namespace Cardwin.Core
         public float groundCheckRadius = 0.2f;
         public Vector3 groundCheckLocalPos = new Vector3(0f, -0.55f, 0f);
 
+        [Header("Spawn")]
+        public bool placePlayerAtSpawnOnAwake = true;
+        public float spawnSafetyOffset = 0.08f;
+        public float spawnRaycastHeight = 5f;
+        public float spawnRaycastDistance = 20f;
+
         [Header("Toggles")]
         public bool disableBlockingPlaceholders = true;
         public bool forceEnemyTrigger = true;
@@ -27,6 +34,7 @@ namespace Cardwin.Core
 
         private GameObject _player;
         private GameObject _camera;
+        private GameObject _spawnPoint;
         private int _playerLayer;
         private int _enemyLayer;
         private int _groundLayer;
@@ -36,8 +44,8 @@ namespace Cardwin.Core
             ResolveLayers();
             FindCoreObjects();
             ConfigureCamera();
-            ConfigurePlayer();
             ConfigureGroundAndPlatforms();
+            ConfigurePlayer();
             ConfigureEnemy();
             DisableBlockingPlaceholders();
             IgnorePlayerEnemyCollision();
@@ -63,11 +71,14 @@ namespace Cardwin.Core
         {
             _camera = GameObject.Find(cameraName);
             _player = GameObject.Find(playerName);
+            _spawnPoint = GameObject.Find(spawnPointName);
 
             if (_camera == null)
                 Debug.LogError($"[SceneBootstrapper] Camera '{cameraName}' not found in scene.");
             if (_player == null)
                 Debug.LogError($"[SceneBootstrapper] Player '{playerName}' not found in scene.");
+            if (_spawnPoint == null)
+                Debug.LogWarning($"[SceneBootstrapper] Spawn point '{spawnPointName}' not found in scene.");
         }
 
         private void ConfigureCamera()
@@ -112,6 +123,8 @@ namespace Cardwin.Core
                 rb.bodyType = RigidbodyType2D.Dynamic;
                 rb.gravityScale = 3f;
                 rb.freezeRotation = true;
+                if ((rb.constraints & RigidbodyConstraints2D.FreezePositionY) != 0)
+                    rb.constraints &= ~RigidbodyConstraints2D.FreezePositionY;
             }
 
             Collider2D col = _player.GetComponent<Collider2D>();
@@ -137,7 +150,53 @@ namespace Cardwin.Core
                 controller.groundCheck = gc;
             }
 
+            PlacePlayerAtSpawn(rb);
+
             Debug.Log("[SceneBootstrapper] Player configured: Tag=Player, Layer=Player, groundLayer=Ground, GroundCheck created");
+        }
+
+        private void PlacePlayerAtSpawn(Rigidbody2D rb)
+        {
+            if (!placePlayerAtSpawnOnAwake || _player == null || _spawnPoint == null)
+                return;
+
+            if (_spawnPoint.transform.IsChildOf(_player.transform))
+                _spawnPoint.transform.SetParent(null, true);
+
+            Vector3 spawnPos = _spawnPoint.transform.position;
+            spawnPos.z = 0f;
+            spawnPos.y = ResolveSpawnY(spawnPos.x, spawnPos.y);
+
+            _spawnPoint.transform.position = spawnPos;
+            _player.transform.position = spawnPos;
+
+            if (rb != null)
+                rb.velocity = Vector2.zero;
+
+            Debug.Log($"[SceneBootstrapper] Player placed at spawn: {spawnPos}");
+        }
+
+        private float ResolveSpawnY(float x, float fallbackY)
+        {
+            float bottomOffset = 0.9f;
+            Collider2D playerCollider = _player != null ? _player.GetComponent<Collider2D>() : null;
+            if (playerCollider != null)
+                bottomOffset = _player.transform.position.y - playerCollider.bounds.min.y;
+
+            if (_groundLayer < 0)
+                return fallbackY;
+
+            Vector2 origin = new Vector2(x, fallbackY + spawnRaycastHeight);
+            float rayDistance = spawnRaycastHeight + spawnRaycastDistance;
+            RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, rayDistance, 1 << _groundLayer);
+
+            if (hit.collider == null)
+            {
+                Debug.LogWarning($"[SceneBootstrapper] No ground found below spawn x={x:F2}; using authored spawn y.");
+                return fallbackY;
+            }
+
+            return hit.point.y + bottomOffset + spawnSafetyOffset;
         }
 
         private void ConfigureGroundAndPlatforms()
@@ -158,8 +217,11 @@ namespace Cardwin.Core
 
         private void ConfigureGroundRecursive(GameObject obj, ref int count)
         {
+            if (_player != null && (obj == _player || obj.transform.IsChildOf(_player.transform)))
+                return;
+
             string lower = obj.name.ToLower();
-            bool isGround = lower.Contains("ground") || lower.Contains("platform");
+            bool isGround = lower == "ground" || lower.Contains("platform");
 
             if (isGround)
             {
@@ -218,19 +280,39 @@ namespace Cardwin.Core
                 if (_enemyLayer >= 0)
                     obj.layer = _enemyLayer;
 
-                if (forceEnemyTrigger)
+                bool hasMeleeController = obj.GetComponent<Cardwin.Enemies.MeleeEnemyController>() != null;
+                bool hasRangedController = obj.GetComponent<Cardwin.Enemies.RangedEnemyController>() != null;
+                bool hasNewController = hasMeleeController || hasRangedController;
+
+                if (hasNewController)
                 {
-                    Collider2D[] colliders = obj.GetComponents<Collider2D>();
-                    foreach (Collider2D col in colliders)
-                        col.isTrigger = true;
+                    if (forceEnemyTrigger)
+                    {
+                        Collider2D[] colliders = obj.GetComponents<Collider2D>();
+                        foreach (Collider2D col in colliders)
+                            col.isTrigger = true;
+                    }
+                }
+                else
+                {
+                    if (forceEnemyTrigger)
+                    {
+                        Collider2D[] colliders = obj.GetComponents<Collider2D>();
+                        foreach (Collider2D col in colliders)
+                            col.isTrigger = true;
+                    }
+
+                    Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
+                    if (rb == null)
+                        rb = obj.AddComponent<Rigidbody2D>();
+
+                    rb.bodyType = RigidbodyType2D.Kinematic;
+                    rb.freezeRotation = true;
                 }
 
-                Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
-                if (rb == null)
-                    rb = obj.AddComponent<Rigidbody2D>();
-
-                rb.bodyType = RigidbodyType2D.Kinematic;
-                rb.freezeRotation = true;
+                Rigidbody2D rb2 = obj.GetComponent<Rigidbody2D>();
+                if (rb2 != null)
+                    rb2.freezeRotation = true;
 
                 count++;
             }

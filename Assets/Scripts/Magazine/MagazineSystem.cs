@@ -30,6 +30,7 @@ namespace Cardwin.Magazine
         public List<CardData> LoadoutCards { get; private set; } = new();
         public int CurrentIndex { get; private set; }
         public bool IsReloading { get; private set; }
+        public int LoadedCount => LoadedCards.Count;
         public int Capacity => capacity;
         public float ReloadProgress => IsReloading ? 1f - (_reloadTimer / reloadTime) : 1f;
 
@@ -85,7 +86,7 @@ namespace Cardwin.Magazine
             }
         }
 
-        public void SetLoadoutCards(List<CardData> cards)
+        public void SetLoadoutCards(List<CardData> cards, bool rebuildImmediately = true)
         {
             LoadoutCards.Clear();
             if (cards != null)
@@ -105,10 +106,13 @@ namespace Cardwin.Magazine
                 names += LoadoutCards[i].cardName + (i < LoadoutCards.Count - 1 ? ", " : "");
             Debug.Log($"[Magazine] Loadout updated: {names}");
 
-            BuildRandomMagazine();
-            CurrentIndex = 0;
-            IsReloading = false;
-            OnMagazineChanged?.Invoke();
+            if (rebuildImmediately)
+            {
+                BuildRandomMagazine();
+                CurrentIndex = 0;
+                IsReloading = false;
+                OnMagazineChanged?.Invoke();
+            }
         }
 
         public List<CardData> GetLoadoutCards()
@@ -296,14 +300,23 @@ namespace Cardwin.Magazine
 
         public CardData GetCurrentCard()
         {
-            if (LoadedCards.Count == 0)
-                return null;
-            if (IsReloading)
-                return null;
-            if (CurrentIndex >= LoadedCards.Count)
+            if (!HasUsableCurrentCard())
                 return null;
 
             return LoadedCards[CurrentIndex];
+        }
+
+        public bool HasUsableCurrentCard()
+        {
+            if (IsReloading)
+                return false;
+            if (LoadedCards == null || LoadedCards.Count == 0)
+                return false;
+            if (CurrentIndex < 0 || CurrentIndex >= LoadedCards.Count)
+                return false;
+            if (LoadedCards[CurrentIndex] == null)
+                return false;
+            return true;
         }
 
         public List<CardData> GetPreviewCards(int count)
@@ -318,19 +331,19 @@ namespace Cardwin.Magazine
             return preview;
         }
 
-        public void UseCurrentCardLeft()
+        public bool UseCurrentCardLeft()
         {
             if (IsReloading)
             {
                 Debug.Log("[Magazine] Cannot use card: Reloading");
-                return;
+                return false;
             }
 
             CardData card = GetCurrentCard();
             if (card == null)
             {
                 Debug.Log("[Magazine] Cannot use card: No current card");
-                return;
+                return false;
             }
 
             Debug.Log($"[Magazine] UseLeft card={card.cardName} index={CurrentIndex}");
@@ -339,21 +352,22 @@ namespace Cardwin.Magazine
                 cardExecutor.ExecuteLeft(card, context);
 
             AdvanceIndex();
+            return true;
         }
 
-        public void UseCurrentCardRight()
+        public bool UseCurrentCardRight()
         {
             if (IsReloading)
             {
                 Debug.Log("[Magazine] Cannot use card: Reloading");
-                return;
+                return false;
             }
 
             CardData card = GetCurrentCard();
             if (card == null)
             {
                 Debug.Log("[Magazine] Cannot use card: No current card");
-                return;
+                return false;
             }
 
             Debug.Log($"[Magazine] UseRight card={card.cardName} index={CurrentIndex}");
@@ -362,6 +376,7 @@ namespace Cardwin.Magazine
                 cardExecutor.ExecuteRight(card, context);
 
             AdvanceIndex();
+            return true;
         }
 
         public void ManualReload()

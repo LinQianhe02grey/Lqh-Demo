@@ -12,6 +12,7 @@
 8. **系统拆分**：按以下子系统组织代码：
    - `Core` — 游戏入口、全局状态、事件总控
    - `Combat` — 伤害计算、格挡、治疗、命中等
+   - `Enemies` — 敌人 AI、敌方子弹、敌人 Prefab、场景敌人摆放（属于 Combat 大系统下的敌人实现）
    - `Camera` — 摄像机跟随、边界限制
    - `Cards` — ScriptableObject 卡牌定义、卡牌效果接口
    - `Magazine` — 弹夹、换弹、预览
@@ -32,7 +33,8 @@
 ## 文件命名规范
 
 - 脚本文件与其主类同名。例如 `PlayerController2D.cs` 中只包含 `PlayerController2D` 类。
-- ScriptableObject 数据文件命名：`CardData_<卡片名>.asset`。
+- ScriptableObject 卡牌数据必须使用清晰英文名。当前基础卡牌资产沿用项目现状：`Focus.asset`、`Guard.asset`、`Heal.asset`、`Strike.asset`；不要在普通功能阶段重命名这些资产。
+- 新增卡牌建议使用清晰英文名（如 `FrostBolt.asset`）或另行约定的 `CardData_<Name>.asset`。如未来要统一迁移到 `CardData_<Name>.asset`，必须单独开资产迁移阶段处理。
 - 命名空间建议：`Cardwin.<子系统名>`。
 
 ## 代码风格

@@ -1,0 +1,13 @@
+CardID,卡牌名,类型,输入,善消耗,恶消耗,基础效果,FinalValue,单位,冷却/限制,稀有度,定位,风险备注
+C001,Strike,Attack,左键,0,1,基础攻击弹,10.0,伤害,无,Common,稳定输出,入门基础攻击弹
+C002,Pierce,Attack,左键,0,1,穿透攻击,8.0,伤害,可穿 1 个敌人,Common,打群怪,穿透目前未实现
+C003,Burst,Attack,左键,0,2,高倍率攻击,16.0,伤害,弹夹内最多 2 张,Rare,爆发,高伤害高消耗
+C004,Guard,Defense,右键,1,0,获得护盾,15.0,护盾,持续 5 秒,Common,容错,防御基础
+C005,Heal,Support,右键,1,0,回复生命,12.0,治疗,不超过最大生命,Common,续航,补血基础
+C006,Focus,Support,右键,1,0,下一发攻击增伤,50%,增伤%,只影响下一发,Common,爆发准备,配合攻击弹
+C007,Evil Shot,Attack,左键,0,3,极恶攻击,22.0,伤害,弹夹内最多 1 张,Epic,高风险高收益,高恶消耗
+C008,Mercy Shield,Defense,右键,2,0,强护盾,2500%,护盾,持续 4 秒,Rare,防御流核心,百分比护盾数值需设计
+C009,Combo Spark,Support,右键,1,0,连击收益提升,0,每层增伤%,持续 5 秒,Rare,高手奖励,连击系统接口
+C010,Quick Reload,Support,右键,1,0,缩短装填,200%,秒,不叠加,Rare,节奏优化,装填加速目前未实现
+C011,Weakness Mark,Debuff,左键,0,1,标记易伤,20%,易伤%,持续 4 秒,Rare,Boss/精英,易伤效果目前未实现
+C012,Aerial Mark,Attack,左键,0,1,对空增伤,30%,对空增伤%,只对空中敌人,Common,解决空中怪,空中增伤目前未实现

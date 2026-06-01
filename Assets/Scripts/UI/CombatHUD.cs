@@ -16,7 +16,9 @@ namespace Cardwin.UI
         private Text _shieldText;
         private Text _focusText;
         private Text _reloadText;
+        private Text _comboText;
         private MagazinePreviewUI _magazinePreviewUI;
+        private ComboRatingSystem _comboRating;
 
         private Transform _hudRoot;
         private bool _bound;
@@ -32,6 +34,7 @@ namespace Cardwin.UI
             EnsurePreviewPanel();
             DisableFullBarIfExists();
             EnsureReloadText();
+            EnsureComboText();
         }
 
         private void Start()
@@ -254,6 +257,7 @@ namespace Cardwin.UI
                 _cardContext = pc.cardContext;
 
             _magazineSystem = player.GetComponent<MagazineSystem>();
+            _comboRating = player.GetComponent<ComboRatingSystem>();
             Debug.Log("[CombatHUD] Bound Player");
 
             if (_magazineSystem != null)
@@ -299,11 +303,45 @@ namespace Cardwin.UI
             if (_cardContext != null && _focusText != null)
                 _focusText.text = _cardContext.focusStacks > 0 ? $"Focus: {_cardContext.focusStacks}" : "";
 
+            if (_comboText != null && _comboRating != null)
+            {
+                if (_comboRating.IsActive && _comboRating.ComboCount > 0)
+                    _comboText.text = $"Combo: {_comboRating.ComboCount}\nRank: {_comboRating.CurrentRank}\nTime: {_comboRating.ComboTimer:F1}s";
+                else
+                    _comboText.text = "Combo: 0\nRank: -";
+            }
+
             if (_bound && !_loggedFirstRefresh)
             {
                 Debug.Log("[CombatHUD] First refresh done - verify HP/Shield/Focus visible in Game view top-left");
                 _loggedFirstRefresh = true;
             }
+        }
+
+        private void EnsureComboText()
+        {
+            Transform existing = _hudRoot.Find("ComboText");
+            if (existing != null)
+            {
+                _comboText = existing.GetComponent<Text>();
+                return;
+            }
+
+            GameObject go = new GameObject("ComboText");
+            go.transform.SetParent(_hudRoot, false);
+            _comboText = go.AddComponent<Text>();
+            _comboText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            _comboText.fontSize = 22;
+            _comboText.color = Color.white;
+            _comboText.alignment = TextAnchor.UpperRight;
+            _comboText.raycastTarget = false;
+
+            RectTransform rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(1f, 1f);
+            rt.anchorMax = new Vector2(1f, 1f);
+            rt.pivot = new Vector2(1f, 1f);
+            rt.anchoredPosition = new Vector2(-30f, -30f);
+            rt.sizeDelta = new Vector2(260f, 80f);
         }
 
         private void RefreshReloadProgress()

@@ -4,6 +4,8 @@ namespace Cardwin.Cards
     {
         Attack,
         Defense,
+        Support,
+        Debuff,
         Heal,
         Utility
     }

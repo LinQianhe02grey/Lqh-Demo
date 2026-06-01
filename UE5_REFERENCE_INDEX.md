@@ -291,11 +291,19 @@ UE5 Cardwin 是一个 2D 横版动作卡牌游戏原型，核心机制如下：
 | `Heal0` | Heal | Value=5 | 2 |
 | `Focus0` | ApplyStatus.Status.Focus | Stacks=1 | 1 |
 
-**Unity 迁移时直接基于上述数据创建 4 个 ScriptableObject：**
+**Unity 迁移参考命名（仅保留为 UE5 数据映射参考）：**
 - `CardData_Strike0.asset`
 - `CardData_Guard0.asset`
 - `CardData_Heal0.asset`
 - `CardData_Focus0.asset`
+
+**当前 Unity 项目实际基础卡牌资产名（Stage 8A.1c 同步口径）：**
+- `Strike.asset`
+- `Guard.asset`
+- `Heal.asset`
+- `Focus.asset`
+
+不要在普通功能阶段重命名当前资产；如未来要统一迁移到 `CardData_<Name>.asset`，需单独开资产迁移阶段。
 
 ---
 

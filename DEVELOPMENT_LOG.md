@@ -1119,7 +1119,567 @@
   3. Console 出现 4 条 `Created owned slot` 日志
   4. 点击卡牌 → Loadout 增加，库存减少
   5. 右侧 Loadout 显示不受影响
-  6. 战斗 HUD 三发预览不受影响
+   6. 战斗 HUD 三发预览不受影响
 - **下一步**：Continue Stage 7A — Inventory / Magazine Editing stabilization
 
 ---
+### 2026-05-30 | Stage 7B — Loadout Edit Polish
+- **用户需求**：打磨 Loadout 编辑体验：Apply/Cancel/Clear/AutoFill 按钮、编辑层独立于战斗、Loadout 数量显示、未 Apply 不影响战斗弹夹
+- **修改文件**：
+  - `Assets/Scripts/UI/MagazineEditUI.cs` — 编辑层重构 + 4 按钮 + Loadout 计数
+  - `Assets/Scripts/Magazine/MagazineSystem.cs` — SetLoadoutCards 增加 rebuildImmediately 参数
+  - `Assets/Scripts/Inventory/InventorySystem.cs` — 新增 SetOwnedCardsFromCounts
+  - `SYSTEM_INDEX.md`、`DEVELOPMENT_LOG.md`、`TODO.md`
+- **新增字段**：
+  - MagazineEditUI: `_editingLoadout` (List<CardData>)、`_editingOwnedCounts` (Dictionary<CardData,int>)、`_hasPendingChanges` (bool)、`_loadoutCountText` (Text)
+- **新增函数**：
+  - InventorySystem: `SetOwnedCardsFromCounts(Dictionary<CardData,int>)`
+  - MagazineEditUI: `Apply()`、`CancelEdit()`、`ClearLoadout()`、`AutoFill()`、`CreateActionButton()`
+  - MagazineSystem.SetLoadoutCards 新增 `bool rebuildImmediately = true` 参数
+- **删除**：MagazineEditUI.FindCardDatabase()（不再需要，编辑层不再调用 ResetToTestStock）
+- **关键规则**：
+  - Open 时从 MagazineSystem.GetLoadoutCards() 拷贝 → _editingLoadout，从 InventorySystem.GetCardCounts() 拷贝 → _editingOwnedCounts
+  - 点击 Owned Card / Loadout Slot 只修改编辑层，不立刻影响战斗
+  - Apply：SetLoadoutCards(_editingLoadout, true) + SetOwnedCardsFromCounts → Close
+  - Cancel / B / Esc：丢弃编辑层，不写回 → Close
+  - Clear：_editingLoadout 全部返还 _editingOwnedCounts → Clear()
+  - AutoFill：从 _editingOwnedCounts 随机抽卡补满 8 张
+  - Loadout 为空 Apply 后：loadedCards 清空，战斗 HUD Empty，不 fallback
+  - Loadout 标题 "Loadout N/8"，未保存追加 " *"
+- **测试步骤**：
+  1. Play → B 打开背包 → 4 按钮可见 + Loadout 计数
+  2. 点击 Owned Card → 仅编辑态改变，战斗 HUD 不变
+  3. Apply → 战斗 HUD 刷新；Cancel → 保持原态
+  4. Clear → Apply → 战斗 HUD Empty
+  5. Auto Fill → 随机补满 → Apply → 战斗生效
+- **下一步**：Continue Stage 7 — Shop System or Polish
+
+---
+### 2026-05-30 | Stage 7B.1 — Reloading / Empty 禁止发射
+- **用户需求**：修复换弹中或弹夹为空时仍可通过 fallback 发射测试卡牌的问题
+- **修改范围**：记录同步型补录；对应代码已体现在 `PlayerController2D.cs` 与 `MagazineSystem.cs`
+- **当前状态**：
+  - `MagazineSystem` 提供 `HasUsableCurrentCard()` / `LoadedCount`
+  - `MagazineSystem` 存在时，左键/右键不会 fallback 到 `testCard`
+  - `Reloading` / `Empty` 状态禁止使用当前卡牌
+- **验收状态**：核心功能已在代码中体现；本记录仅补齐 DEVELOPMENT_LOG 阶段链
+- **后续注意事项**：后续若新增备用射击逻辑，必须保持 Reloading/Empty 阻断规则
+
+---
+### 2026-05-30 | Stage 7C — Large Bag Panel + Tabbed Inventory Framework
+- **用户需求**：扩大背包面板、增加分页系统、修复按钮 CAAC 重叠、为未来翻页/融合/装备/预览预留结构
+- **修改文件**：
+  - `Assets/Scripts/UI/MagazineEditUI.cs` — 全面重构 EnsureUI + 分页系统
+  - `SYSTEM_INDEX.md`、`DEVELOPMENT_LOG.md`、`TODO.md`
+- **新增类型**：`BagTab` 枚举 (Magazine/Inventory/Fusion/Equipment/Preview)
+- **新增字段**：`_currentTab`、`_magazinePage`~`_previewPage` (5个)、`_bottomButtonRow`、`_tabButtons` (Dictionary)
+- **新增函数**：`SwitchTab()`、`RefreshCurrentTab()`、`RefreshTabButtons()`、`RefreshPreviewPage()`、`CreateBagPanelBackground()`、`CreateTitleText()`、`CreateTabRow()`、`CreateTabButton()`、`CreateContentRoot()`、`CreateMagazinePage()`、`CreateInventoryPage()`、`CreateFusionPage()`、`CreateEquipmentPage()`、`CreatePreviewPage()`、`CreatePagePlaceholder()`、`CreateBottomButtonRow()`、`CreateHintText()`、`CreateReadOnlyCardSlot()`
+- **UI 结构变更**：
+  - BagPanel 尺寸：900x520 → 1180x680
+  - 新增 Background（最底层黑底 alpha≥0.96）
+  - 新增 TabRow（5 个分页按钮：Magazine/Inventory/Fusion/Equipment/Preview，当前高亮蓝青色）
+  - ContentRoot (1100x500) 包含 5 个 Page，仅显示当前 Tab
+  - MagazinePage：左侧 OwnedCardsPanel(500x460, cellSize 200x70) + 右侧 LoadoutPanel(500x460, cellSize 160x70) + LoadoutCount
+  - InventoryPage：只读聚合显示所有 Owned Cards (Grid 3列)
+  - FusionPage/EquipmentPage：占位文字 "coming later"
+  - PreviewPage：只读显示当前 Loadout + loadedCards 前3发
+  - BottomButtonRow：720x48, HorizontalLayoutGroup, spacing=18, childControlWidth/Height=false, childForceExpandWidth/Height=false — 彻底修复 CAAC 重叠
+  - ButtonRow 仅在 Magazine 页显示，其他页隐藏
+  - HintText 在按钮上方 24px 处，不覆盖按钮
+  - 按钮 sizeDelta 120x36 → 150x40, fontSize 14 → 16
+  - EnsureUI 改为 destroy-rebuild 模式（复用 BagPanel root）
+- **按钮日志**：Clear/Auto Fill/Apply/Cancel 点击时输出对应日志
+- **下一步**：Continue Stage 8 — Shop System
+
+---
+### 2026-05-30 | Stage 7C.1 — Fix Magazine Page Content Missing
+- **用户需求**：修复 Stage 7C 后 Magazine 页内容区域空白的 Bug
+- **修改文件**：`Assets/Scripts/UI/MagazineEditUI.cs`
+- **根本原因**：`Destroy()` 在 Unity 中延迟执行（帧末销毁）。`EnsureUI()` 先用 `Destroy()` 清除旧子物体，然后立即创建同名新子物体。`GetContentRoot()` 使用 `Find("ContentRoot")` 找到了仍存活但已标记销毁的旧 ContentRoot，新建的 MagazinePage 等被挂载到这个即将销毁的旧节点下，帧末被连带销毁
+- **修复方案**：
+  1. `Destroy()` → `DestroyImmediate()`：子物体立即销毁，不存在新旧冲突
+  2. `_contentRoot` 改为直接字段引用（`Transform _contentRoot`），不再使用 `Find("ContentRoot")`
+  3. MagazinePage 添加 "Owned Cards" 和 "Loadout" 标题标签
+  4. `SwitchTab()` 仅在 `_isOpen=true` 时刷新内容（避免 Start 时重复空刷新）
+  5. `Open()` 中 `EnsureTestStockIfEmpty` 移到 `EnsureUI()` 之前，确保 InventoryPage 创建时能看到测试库存
+   6. `Open()` 中 `Refresh()` 改为 `SwitchTab(BagTab.Magazine)`，确保 Magazine 页激活并刷新
+- **下一步**：Continue Stage 8 — Shop System
+
+---
+### 2026-05-30 | Stage 7C.2 — Large Bag Panel Size Update
+- **用户需求**：继续放大背包/弹夹编辑面板，提升 5 分页界面的可读性和按钮可点性
+- **修改范围**：记录同步型补录；对应 UI 尺寸已体现在 `MagazineEditUI.cs`
+- **当前状态**：
+  - BagPanel 当前代码尺寸为 `1380x820`
+  - ContentRoot 当前代码尺寸为 `1260x610`
+  - Magazine 页左右面板当前代码尺寸为 `540x500`
+  - Owned / Loadout cellSize 当前分别为 `210x80` / `190x80`
+  - 底部按钮当前为 `170x42`
+- **验收状态**：核心布局调整已在代码和 TODO 中体现；本记录补齐 DEVELOPMENT_LOG 阶段链
+- **后续注意事项**：如 UI 尺寸继续变化，`SYSTEM_INDEX.md` 只记录当前稳定口径，具体数值以 `MagazineEditUI.cs` 为准
+
+---
+### 2026-05-30 | Stage 7D — Inventory Persistence During Play
+- **用户需求**：背包在同一 Play 会话中保持库存编辑结果，打开背包不再反复重置测试库存
+- **修改范围**：记录同步型补录；对应逻辑已体现在 `InventorySystem.cs`、`PlayerController2D.cs`、`MagazineEditUI.cs`
+- **当前状态**：
+  - `InitializeForRun()` 一次 Play 会话只初始化一次
+  - `Open()` 读取当前库存，不再每次重置
+  - `useTestStock` / `resetTestStockOnStart` 作为测试库存配置保留
+  - `GetOwnedTotalCount()` 用于显示和调试库存数量
+- **验收状态**：核心功能已在代码中体现；本记录补齐 DEVELOPMENT_LOG 阶段链
+- **后续注意事项**：当前仍是 Play 会话内持久化，不等同于跨游戏启动的存档系统
+
+---
+
+### 2026-05-31 | Stage 8.0.1 — Safe Mode Compilation Fix (EnemyProjectile type mismatch)
+- **用户需求**：修复 Unity Safe Mode 编译错误 CS1503 — Argument 1: cannot convert from 'float' to 'int' at `EnemyProjectile.cs:41`
+- **修改文件**：
+  - `Assets/Scripts/Enemies/EnemyProjectile.cs` — line 41: `TakeDamage(_damage)` → `TakeDamage(Mathf.RoundToInt(_damage))`
+  - `Assets/Scripts/Combat/EnemyController.cs` — line 25: `public float projectileDamage = 6f` → `public int projectileDamage = 6`
+- **根本原因**：`EnemyProjectile._damage` 和 `EnemyController.projectileDamage` 均为 `float`，但 `Health.TakeDamage()` 参数为 `int`，类型不匹配
+- **修复方式**：最小改动 — `Mathf.RoundToInt` 转换 float→int；同步将 `projectileDamage` 改为 `int`（与 `contactDamage: int` 一致）
+- **未修改文件**：Health.cs / PlayerController2D.cs / MagazineSystem.cs / InventorySystem.cs / 背包 UI / Demo_Combat.unity
+- **下一步**：Continue Stage 8 — Shop System
+
+---
+
+### 2026-05-31 | Stage 8A.1 — Enemy Placement, Prefab Management, Collision and AI Fix
+- **用户需求**：修复敌人管理/摆放/碰撞/AI/Prefab化，解决敌人与Player重合、远程敌人不攻击/不移动、敌人编辑模式不可见等问题
+- **修改文件**：
+  - 新增 `Assets/Scripts/Enemies/MeleeEnemyController.cs` + .meta
+  - 新增 `Assets/Scripts/Enemies/RangedEnemyController.cs` + .meta
+  - 修改 `Assets/Scripts/Enemies/EnemyProjectile.cs`（Init签名改为int damage + Rigidbody2D.velocity）
+  - 修改 `Assets/Scripts/Core/DemoSceneRuntimeBootstrapper.cs`（支持新控制器）
+  - 新增 `Assets/Prefabs/Enemies/MeleeEnemy.prefab` + .meta
+  - 新增 `Assets/Prefabs/Enemies/RangedEnemy.prefab` + .meta
+  - 新增 `Assets/Prefabs/Enemies/EnemyProjectile.prefab` + .meta
+  - 修改 `Assets/Scenes/Demo_Combat.unity`（新增LevelRoot/Enemies + 6敌人）
+- **新增类**：
+  - `MeleeEnemyController`：patrol/chase/stopDistance(0.75)/attackRange(0.9)
+  - `RangedEnemyController`：horizontal patrol/shoot/prefab ref with fallback
+- **防重合方案**：stopDistance停止追击 + velocity.x=0 + attackRange攻击 + Player-Enemy层忽略碰撞
+- **敌人布置**：Melee(18,-2.2)(42,-2.2)(58,-2.2) / Ranged(32,3.2)(45,3.0)(63,3.0)
+- **下一步**：测试验证 → Stage 8B Shop System
+
+---
+
+### 2026-05-31 | Stage 8A.1b — Static Level Authoring Fix + Missing using / Argument Order
+- **用户需求**：修复场景层级/敌人位置在地面上/编辑模式可见/LevelRoot完整结构，并修复 Safe Mode 编译错误
+- **修改文件**：
+  - 修改 `Assets/Scenes/Demo_Combat.unity` —
+    - Ground 从 (30,1)@(0,-3) 扩展到 (90,1)@(35,-3)，覆盖 x=-10 到 x=80
+    - MeleeEnemy y 从 -2.2 修正到 -2.0（站在地面顶部 y=-2.5）
+    - 新增 LevelRoot/Platforms（含 Platform_Z4/5/6_High 灰色5x0.4平台）
+    - 新增 LevelRoot/Props（空容器）
+    - 新增 LevelRoot/FinishGate（空容器）
+  - 修改 `Assets/Scripts/Enemies/EnemyProjectile.cs` — 添加 `using Cardwin.Combat;`
+  - 修改 `Assets/Scripts/Enemies/MeleeEnemyController.cs` — 添加 `using Cardwin.Combat;`
+  - 修改 `Assets/Scripts/Enemies/RangedEnemyController.cs` — 添加 `using Cardwin.Combat;`
+  - 修改 `Assets/Scripts/Combat/EnemyController.cs` — Init 参数顺序修正
+- **场景层级**：
+  - LevelRoot → Platforms (Platform_Z4/5/6_High), Enemies (6 enemies), Props, FinishGate
+  - Enemy_Test_OLD 保留为禁用状态
+- **敌人位置**：
+  - MeleeEnemy_01: (18, -2, 0) ✓ 在地面顶部
+  - MeleeEnemy_02: (42, -2, 0) ✓ 在地面顶部
+  - MeleeEnemy_03: (58, -2, 0) ✓ 在地面顶部
+  - RangedEnemy_01: (32, 3.2, 0) ✓ 在Z4高台上方
+  - RangedEnemy_02: (45, 3.0, 0) ✓ 在Z5高台附近
+  - RangedEnemy_03: (63, 3.0, 0) ✓ 在Z6高台上方
+- **所有远程敌人 enemyProjectilePrefab 已绑定**
+- **根本原因**：新脚本缺失 Health namespace 引用；EnemyController 调用 EnemyProjectile.Init 参数顺序不匹配新签名
+- **验证状态**：当前已通过编辑器空闲 / 无 C# 编译错误状态检查；Console 中一条 Error 为 MCP 工具读取根目录文档路径导致，不是项目脚本编译错误
+- **下一步**：Stage 8A.2 — Level and Enemy Runtime Validation
+
+---
+### 2026-05-31 | Stage 8A.1c — Project Records Synchronization / 文档记录同步修复
+- **用户需求**：只同步项目记录链，不修改游戏逻辑；明确当前场景、敌人、Prefab、卡牌资产命名、背包 UI 尺寸和后续验证任务
+- **修改文件**：
+  - `AGENTS.md` — 增加 Enemies 子系统；修正卡牌资产命名规则，保留当前 `Focus.asset` / `Guard.asset` / `Heal.asset` / `Strike.asset`
+  - `SYSTEM_INDEX.md` — 更新到 Stage 8A.1c；新增 Enemies System / Combat Enemies 小节；记录 LevelRoot/Enemies、敌人脚本与 Prefab；修正 MagazineEditUI BagPanel 1380x820
+  - `DEVELOPMENT_LOG.md` — 补录 Stage 7B.1 / 7C.2 / 7D；整理 Stage 8A.1b；追加本记录
+  - `TODO.md` — 对齐已完成阶段链；下一阶段改为 Stage 8A.2 — Level and Enemy Runtime Validation
+  - `UE5_REFERENCE_INDEX.md` — 将 `CardData_Strike0.asset` 等保留为 UE5 参考命名，并补充当前 Unity 实际资产名
+- **未修改文件**：未修改 `Demo_Combat.unity`、任何 C# 脚本、Prefab、CardData / CardDatabase 资产，未重命名卡牌资产
+- **当前状态**：
+  - 文档记录链已对齐到 Stage 8A.1c
+  - `SYSTEM_INDEX.md` 不再使用过期 1180x680 背包 UI 尺寸
+  - Enemies 系统归属明确为 Combat 大系统下的敌人实现，实际目录为 `Assets/Scripts/Enemies/`
+  - 当前基础卡牌资产名继续保留为 `Focus.asset` / `Guard.asset` / `Heal.asset` / `Strike.asset`
+- **验收状态**：文档同步完成；未执行 PlayMode 行为测试，敌人攻击/远程射击/地形通路仍待 Stage 8A.2 验证
+- **后续注意事项**：下一步应继续 Stage 8A.2 — Level and Enemy Runtime Validation，而不是 Shop System
+
+---
+### 2026-05-31 | Stage 8A.3 — Interrupt Recovery, Player Spawn/Jump, Enemy Attack and Projectile Visibility Fix
+- **用户需求**：中断恢复检查；修复 Player 出生点、跳跃一直飞、近战敌人攻击/防重合、远程敌人射击、敌方子弹可见与命中；不做 Shop/Reward/Fusion/Equipment/存档，不重建 `Demo_Combat.unity`
+- **修改文件**：
+  - `Assets/Scripts/Combat/PlayerController2D.cs` — Rigidbody2D 安全恢复：Dynamic、gravityScale=3、移除 FreezePositionY；解锁和跳跃前兜底
+  - `Assets/Scripts/Core/DemoSceneRuntimeBootstrapper.cs` — 新增 SpawnPoint_Player 放置逻辑；挂载到 `LevelRoot`；修复 GroundCheck 被误判为 Ground 的问题
+  - `Assets/Scripts/Enemies/MeleeEnemyController.cs` — patrolDistance 默认 2.5；攻击范围按 `attackRange` 判定
+  - `Assets/Scripts/Enemies/RangedEnemyController.cs` — prefab 为空时自动尝试绑定 `Assets/Prefabs/Enemies/EnemyProjectile.prefab`；发射日志带 direction；fallback 子弹改为 Dynamic
+  - `Assets/Scripts/Enemies/EnemyProjectile.cs` — 可见 sprite 兜底、sortingOrder=150、Dynamic Rigidbody2D(gravity=0, Continuous)、Trigger+Overlap 双路径命中 Player/Ground
+  - `Assets/Prefabs/Enemies/EnemyProjectile.prefab` — 保存可见 sprite、紫色、sortingOrder=150、scale=(0.45,0.20,1)、Dynamic Rigidbody2D
+  - `Assets/Scenes/Demo_Combat.unity` — Player 与 SpawnPoint_Player 对齐到安全出生点；Player gravityScale=3；`LevelRoot` 挂载 `DemoSceneRuntimeBootstrapper`
+  - `SYSTEM_INDEX.md`、`DEVELOPMENT_LOG.md`、`TODO.md` — 更新 Stage 8A.3 记录
+- **新增类**：无
+- **新增函数**：
+  - `PlayerController2D.EnsureRigidbodySetup()`
+  - `DemoSceneRuntimeBootstrapper.PlacePlayerAtSpawn()`, `ResolveSpawnY()`
+  - `RangedEnemyController.ResolveProjectilePrefab()`
+  - `EnemyProjectile.CheckManualHit()`, `HandleHit()`, `EnsureVisibleProjectile()`, `CreateRuntimeSprite()`
+- **Unity 挂载方式**：
+  - `LevelRoot` 挂载 `DemoSceneRuntimeBootstrapper`
+  - `Player` 保持 PlayerController2D/Health/MagazineSystem/InventorySystem/CardEffectExecutor，Rigidbody2D=Dynamic、gravityScale=3、FreezeRotation
+  - `LevelRoot/Enemies` 下 3 个近战 + 3 个远程敌人保持编辑模式可见、可选中
+  - 远程敌人 `enemyProjectilePrefab` 指向 `Assets/Prefabs/Enemies/EnemyProjectile.prefab`
+- **测试步骤**：
+  1. 中断恢复检查：Console 0 红色 C# Error；活动场景为 `Assets/Scenes/Demo_Combat.unity`；Play Mode 初始为 false
+  2. Play Mode 验证：Player 从 SpawnPoint 附近出生，Rigidbody2D gravityScale=3，GroundCheck 无 Collider 且不再被设为 Ground
+  3. 跳跃验证：调用 `Jump()` 后初速 `(0,13)`，脚本物理模拟中上升到 `y≈0.81` 后回落到 `y≈-1.60`，`IsGrounded()==true`
+  4. 近战验证：`MeleeEnemy_01/02/03` 进入攻击距离后均把 Player HP 从 50 扣到 42
+  5. 远程验证：`RangedEnemy_01/02/03` 均生成可见 EnemyProjectile，sortingOrder=150，scale=(0.45,0.20,1)，velocity=(-6,0)
+  6. 敌方子弹验证：3 个远程敌人的 EnemyProjectile 均可通过命中路径把 Player HP 从 50 扣到 44
+  7. 玩家子弹验证：`Projectile_Test.prefab` 可将近战敌人 HP 30→20、远程敌人 HP 20→10
+- **已知问题**：
+  - 本阶段验证以 MCP Play Mode + 运行时代码调用为主；Unity 编辑器在 MCP 下 Play frame 计时有时不连续推进，因此跳跃落地使用 `Physics2D.Simulate` 辅助确认
+  - 关卡完整路线节奏、相机边界和终点闭环仍需下一阶段打磨
+- **下一步**：Stage 8A.4 — Level Polish / Enemy Tuning
+
+---
+
+### 2026-05-31 | Stage 8A.4 — Bug Sweep: CardData, EnemyHP UI, Bootstrapper
+- **遍历发现**：
+  - Guard.asset/Heal.asset leftClickEffect=Damage → Block/Heal不生效
+  - Bootstrapper 不在场景中 → 无Player/Enemy配置+空气墙未清理
+  - 无敌人HP/Shield UI
+- **修改**：
+  - Guard.asset: leftClickEffect 1→2(Block)
+  - Heal.asset: leftClickEffect 1→3(Heal), damage 5→0
+  - 新增 EnemyHealthBarUI.cs (OnGUI: HP绿/黄/红条 + SH蓝条)
+  - 场景重建：Ground(90宽) + LevelRoot(Bootstrapper) + 6敌人(EnemyHealthBarUI) + Platforms(3高台) + Props + FinishGate
+- **下一步**：Play验证
+
+---
+
+### 2026-05-31 | Stage 8A.5 — Simplify Level & Enemy Architecture
+- **用户需求**：去繁就简，地图/敌人统一为编辑模式静态实例；不依赖运行时生成/SceneBuilder/Spawner；修复玩家与近战敌人重合。
+- **审计结果**：正式敌人实现保留 `MeleeEnemyController` / `RangedEnemyController` / `EnemyProjectile`；`EnemyController` 仅被旧 `Enemy_Test` 引用；未发现 EnemySpawner/LevelBuilder/SpawnManager 运行时生成正式敌人的脚本。
+- **修改文件**：
+  - `Assets/Scripts/Enemies/MeleeEnemyController.cs`：默认参数改为 patrolSpeed=1.4、chaseSpeed=2.0、attackRange=1.2、stopDistance=1.0。
+  - `Assets/Scripts/Combat/Projectile.cs`：新增 `OnCollisionEnter2D`，Trigger/Collision 共同调用同一命中逻辑。
+  - `Assets/Scenes/Demo_Combat.unity`：禁用 `Enemy_Test_OLD`，移除 `LevelRoot` 上的 `DemoSceneRuntimeBootstrapper` 组件引用；正式敌人 Collider 改为 Trigger，近战 Rigidbody2D 改为 Kinematic；修正正式敌人序列化参数。
+  - `Assets/Prefabs/Enemies/MeleeEnemy.prefab` / `RangedEnemy.prefab`：同步 Kinematic/Trigger 默认值和 EnemyHealthBarUI。
+- **空气墙处理**：CameraBounds/SpawnPoint 当前无 Collider；BossDoor_Placeholder Collider 为 Trigger；旧测试敌人禁用。
+- **下一步**：Play Mode 实测与 Level Polish / Enemy Tuning。
+
+---
+
+### 2026-05-31 | Stage 8A.8 — Convert Enemy Placeholders To Real Edit-Mode Entities
+- **用户需求**：敌人必须在编辑模式下是完整实体，不是运行时补出来的空壳。Scene 视图可见、Inspector 可编辑。
+- **审计发现**：6 个正式敌人和 prefab 的 `SpriteRenderer.sprite` 均为 null、`sortingOrder=0`，编辑模式不可见。`MeleeEnemyController.EnsureVisual()` / `RangedEnemyController.EnsureVisual()` 和 `EnemyProjectile.EnsureVisibleProjectile()` 在 Awake 时运行时创建 sprite/AddComponent，违背编辑态可见原则。
+- **修改文件**：
+  - `Assets/Scripts/Enemies/MeleeEnemyController.cs` — 删除 `EnsureVisual()` 方法及 `Awake` 中的调用、`_spriteRenderer` 字段、`col.isTrigger = true` 赋值；flipX 改用局部 `GetComponent<SpriteRenderer>()`
+  - `Assets/Scripts/Enemies/RangedEnemyController.cs` — 删除 `EnsureVisual()` / `FireFallback()` 方法、`_spriteRenderer` 字段、`Awake` 中 `EnsureVisual()` 调用；flipX 改用局部 `GetComponent<SpriteRenderer>()`；prefab 缺失时只报错不 fallback
+  - `Assets/Scripts/Enemies/EnemyProjectile.cs` — 删除 `CreateRuntimeSprite()` 和运行时 AddComponent/Sprite.Create 兜底逻辑；缺失组件改为 Error Log 并 return；RB 空指针保护
+  - `Assets/Scenes/Demo_Combat.unity` — 6 个敌人 `SpriteRenderer.sprite` 从 null 改为玩家 placeholder sprite (`6e68677f...`); `sortingOrder` 从 0 改为 20; 近战 `m_IsTrigger` 改为 0
+  - `Assets/Prefabs/Enemies/MeleeEnemy.prefab` / `Assets/Prefabs/Enemies/RangedEnemy.prefab` — 同步 sprite/sortingOrder/IsTrigger
+- **结果**：6 个敌人编辑模式即具备完整 SpriteRenderer(红色/紫色)+Rigidbody2D+BoxCollider2D+Health+AI Controller+EnemyHealthBarUI，不再依赖运行时造图
+- **下一步**：Play Mode 实测验证
+
+---
+
+### 2026-05-31 | Stage 8A.9 — Flying Ranged Enemy Hitbox & Detection Tuning
+- **用户需求**：修复玩家子弹打空中远程敌人无效（穿透），扩大远程敌人索敌/射击范围。
+- **根因分析**：
+  - `Projectile.HandleHit` 只查 `GetComponent<Health>()` 不查 parent，若 collider 在子物体则漏掉
+  - 玩家子弹 `collisionDetectionMode=Discrete`、速度=9、scale=0.3→collider radius=0.12，高速小体极易穿透
+  - RangedEnemy `shootRange=10`，但最近敌人距离≈15，始终不进入射击状态
+- **修改文件**：
+  - `Assets/Scripts/Combat/Projectile.cs` — Health 查找添加 `GetComponentInParent<Health>()` 回退；命中日志带上效果类型；无 Health 时输出调试日志
+  - `Assets/Prefabs/Projectiles/Projectile_Test.prefab` — `m_CollisionDetection`: 0→1(Continuous); `m_Radius`: 0.4→0.5
+  - `Assets/Scripts/Enemies/RangedEnemyController.cs` — `shootRange`: 10→16; 添加 `OnDrawGizmosSelected` (黄色=射击范围, 青色=巡逻范围)
+  - `Assets/Scenes/Demo_Combat.unity` — 3 个 RangedEnemy `shootRange` 从 10→16
+  - `Assets/Prefabs/Enemies/RangedEnemy.prefab` — 同步 `shootRange` 16
+- **下一步**：Play Mode 验证
+
+---
+
+### 2026-05-31 | Stage 8A.10 — Remove Invisible Platforms Under Flying Enemies
+- **用户需求**：Platform_Z4/5/6_High 不可视、有 solid collider、在 Ground 层，挡住玩家子弹打空中敌人。
+- **审计结果**：三个平台均有 `SpriteRenderer.sprite=null`(不可见)、`BoxCollider2D.isTrigger=0`(实体阻挡)、`Layer=8`(Ground)。玩家子弹命中 Ground 层即销毁，无法穿过。
+- **修改文件**：
+  - `Assets/Scenes/Demo_Combat.unity` — `Platform_Z4_High/Z5_High/Z6_High` 的 `m_IsActive: 1→0`（禁用）
+- **结果**：空中远程敌人下方不再有无形阻挡，玩家子弹可直达敌人。RangedEnemy 依赖 Kinematic/g=0 悬浮，不受影响。
+- **下一步**：Play Mode 验证
+
+---
+
+### 2026-05-31 | Stage 9A — Player Good / Evil Attribute + Loadout Composition Rule
+- **用户需求**：玩家加入善恶属性(Good=4 Evil=4)，Loadout 搭配时攻击性子弹数量必须等于 Evil。
+- **修改文件**：
+  - 新增 `Assets/Scripts/Combat/PlayerAlignment.cs` — Good/Evil 属性组件
+  - 修改 `Assets/Scripts/Cards/CardData.cs` — 新增 `IsOffensive` 属性
+  - 修改 `Assets/Scripts/UI/MagazineEditUI.cs` — Alignment 显示 + Apply 校验 + AutoFill 优先补攻击弹
+  - `Assets/Scenes/Demo_Combat.unity` — Player 挂载 PlayerAlignment (Good=4, Evil=4)
+- **规则**：Strike=攻击性；Guard/Heal/Focus=非攻击性；Apply 拦截 offensiveCount≠Evil 的 Loadout。
+- **下一步**：Play Mode 验证
+
+---
+
+### 2026-05-31 | Stage 9B — Combo Rating System
+- **用户需求**：屏幕右上角展示连击数和 D/C/B/A 评分；攻击弹左键/增益弹右键算正确使用加连击；5 秒超时清零。
+- **修改文件**：
+  - 新增 `Assets/Scripts/Combat/ComboRatingSystem.cs` — comboCount/comboTimer/rank 逻辑
+  - 修改 `Assets/Scripts/Magazine/MagazineSystem.cs` — UseCurrentCardLeft/Right 返回 bool
+  - 修改 `Assets/Scripts/Combat/PlayerController2D.cs` — 注册 combo; `_comboRating` 字段
+  - 修改 `Assets/Scripts/UI/CombatHUD.cs` — 右上角 ComboText 显示
+  - `Assets/Scenes/Demo_Combat.unity` — Player 挂载 ComboRatingSystem
+- **规则**：Strike 左键=正确→+combo; Guard/Heal/Focus 右键=正确→+combo; 错误不加不重置; 5s 超时清零; 1-2→D, 3-5→C, 6-9→B, 10+→A
+- **下一步**：Play Mode 验证
+
+---
+### 2026-06-01 | Stage 10C — Card Config Validator
+- **用户需求**：新增卡牌配置合法性检查器，扫描所有 CardData 和 CardDatabase 是否有配置错误
+- **修改文件**：
+  - 新增 `Assets/Editor/Cardwin/CardConfigValidator.cs`
+  - 修改 `SYSTEM_INDEX.md`（新增 Editor 条目）
+  - 修改 `DEVELOPMENT_LOG.md`（本记录）
+  - 修改 `TODO.md`（Stage 10C 完成）
+- **新增类**：`CardConfigValidator` (static editor)
+- **新增函数**：
+  - `Validate()` — 菜单入口，执行全部检查
+  - `ScanCardDataAssets()` — AssetDatabase.FindAssets 扫描所有 CardData
+  - `CheckBasicFields()` — CardID/CardName/描述/Icon/GoodCost/EvilCost/Cooldown 检查
+  - `CheckTypeAndUseTarget()` — Heal/Guard/Focus→Self, Strike/Pierce/Burst→Enemy 验证
+  - `CheckGoodEvilCost()` — Self卡goodCost>0, Enemy卡evilCost>0, 混合/零消耗警告
+  - `CheckIsOffensive()` — Damage效果与IsOffensive一致性, Self卡IsOffensive异常
+  - `CheckEffectImplementation()` — 未实现效果(WknsM/QuickR/ComboS/AerialM)警告
+  - `CheckNumericValues()` — Damage>50/Heal>50/Block>80/finalValue>3.0/百分比值/负数检查
+  - `CheckCardDatabase()` — null/重复CardID/disabled卡/遗漏正式卡/旧重复资产
+  - `CheckRewardPool()` — disabled/unimplemented/null卡进入奖励池检查
+  - `CheckInventoryTestStock()` — 正式卡x20 预期库存检查
+  - `GenerateReport()`, `SaveReport()`
+- **菜单路径**：`Tools > Cardwin > Validate Card Configs`
+- **报告输出**：`Assets/Data/CardImport/CardValidationReport.txt`
+- **检查范围**：Assets/Data/Cards/ 下所有 CardData + CardDatabase.asset
+- **限制**：本阶段只报告不自动修复；不修改场景/卡牌资产/游戏逻辑
+- **下一步**：Stage 10C.1 — Auto-Fix Console (如有需要)
+
+---
+### 2026-06-01 | Stage 11A — Project Architecture Audit / 项目架构审计与脚本总表整理
+- **用户需求**：完整扫描项目脚本、资产、场景；输出审计文档；标记 Active/Legacy/Stub；修复 Validate Card Configs 打不开问题（确认功能正常，非 bug 而是 UX 认知差异）
+- **修改文件**：
+  - 新增 PROJECT_SCRIPT_INDEX.md — 46 脚本总表
+  - 新增 PROJECT_FUNCTION_INDEX.md — 函数级索引
+  - 新增 CARDWIN_TOOLS_AUDIT.md — 6 菜单项审计
+  - 新增 CARD_SYSTEM_AUDIT.md — 卡牌系统唯一性
+  - 新增 ACTOR_ARCHITECTURE_AUDIT.md — 角色属性架构
+  - 新增 ENEMY_SYSTEM_AUDIT.md — 敌人系统冗余
+  - 新增 UI_SYSTEM_AUDIT.md — UI 系统审计
+  - 新增 SCENE_STRUCTURE_AUDIT.md — 场景对象审计
+  - 新增 CLEANUP_PLAN.md — 清理计划
+  - 新增 README_PROJECT_OVERVIEW.md — 新人入门文档
+  - 修改 SYSTEM_INDEX.md、DEVELOPMENT_LOG.md、TODO.md
+- **审计结论**：
+  - **脚本总数**：46 C# 文件（38 Runtime + 6 Editor + 2 data）
+  - **Active**: 30 | **Stub**: 7 | **Legacy/Deprecated**: 5 | **Retained**: 2 | **Data Only**: 3
+  - **Validate Card Configs**: 功能正常，MCP 执行有效，报告文件生成成功。用户"打不开"的感知是因为无窗口弹出（纯 Console + 文件输出）
+  - **玩家和敌人**：不需要共同父类，组件组合方案正确（Health 共用组件）
+  - **卡牌效果实现**：唯一入口（CardEffectExecutor），4 种已实现 + 4 种待实现
+  - **最大冗余风险**：4 张旧卡资产与正式卡重复；EnemyController.cs / DemoSceneBootstrapper.cs 为 Legacy
+  - **建议保留 Tools 菜单**：Card Library / Import CSV / Rebuild Database / Validate Configs
+  - **建议废弃**：Rebuild Clean Demo Scene（已 stub） / Create Basic Card Assets（标记 Legacy）
+  - **P0 清理建议**：从 CardDatabase 移除旧资产引用 / 删除 Enemy_Test_OLD / 删除禁用高台平台
+- **限制**：本阶段未删除任何脚本和资产；未修改场景；未修改运行时逻辑
+- **下一步**：根据 CLEANUP_PLAN.md 的 P0 优先级执行清理
+
+---
+### 2026-06-01 | Stage 11B — Safe Cleanup Pass
+- **用户需求**：执行低风险清理：CardDatabase移除旧卡引用 / 删除Enemy_Test_OLD / 删除禁用高台平台 / 高风险Tools菜单移入Legacy
+- **修改文件**：
+  - Assets/Data/Cards/CardDatabase.asset — allCards 从 17→12（仅保留 C001~C012）
+  - Assets/Scenes/Demo_Combat.unity — 删除 Enemy_Test_OLD / Platform_Z4_High / Platform_Z5_High / Platform_Z6_High
+  - Assets/Editor/Cardwin/CardwinSceneBuilder.cs — MenuItem 从 Tools/Cardwin/ 移到 Tools/Cardwin/Legacy/
+  - Assets/Editor/Cardwin/CardAssetCreator.cs — MenuItem 移到 Legacy 子菜单 + 添加二次确认弹窗
+- **清理结果**：
+  - CardDatabase: 12 正式卡 (C001~C012) — 移除 4 旧引用 + 1 null
+  - 旧资产文件 (Strike/Guard/Heal/Focus.asset) 保留在磁盘但不进入 CardDatabase
+  - 场景根对象: 13→12 (删除 Enemy_Test_OLD)
+  - LevelRoot/Platforms: 3→0 (删除 3 个禁用高台平台)
+  - Tools > Cardwin 主菜单: 4 安全工具保留 (Card Library / Import CSV / Rebuild DB / Validate Configs)
+  - Tools > Cardwin > Legacy: 2 个旧工具移入 (Rebuild Scene / Create Basic Cards)
+- **未删除**：EnemyController.cs / DemoSceneRuntimeBootstrapper.cs / 旧 card asset 文件 / Stub脚本 / 核心脚本
+- **下一步**：PlayerController2D 组件重构 或 卡牌效果实现
+
+---
+
+### 2026-06-01 | Stage 11C — Post-Cleanup Regression Test
+- **用户需求**：Stage 11B 清理后全功能回归测试，确认项目稳定可用
+- **修改文件**：
+  - 新增 `REGRESSION_TEST_REPORT.md`（回归测试报告）
+  - 更新 `DEVELOPMENT_LOG.md`（本文档）
+  - 更新 `TODO.md`
+  - 更新 `SYSTEM_INDEX.md`
+- **测试范围**：11 大项回归检查
+  1. Unity 状态检查（MCP/Scene/Console/GameObjects）
+  2. CardDatabase 回归（12 张 C001~C012，0 null，0 重复）
+  3. Card Library / Validate 工具（Validate 执行通过，报告生成）
+  4. 背包库存（12 种 × 20 张 = 240 总计）
+  5. Good/Evil 装填规则（Loadout offensive=4=Evil → Apply 通过）
+  6. 射击/卡牌效果（MagazineSystem 正常，Reload/Empty 阻挡）
+  7. Combo 系统（ComboCount=0 初始，CalculateRank 存在）
+  8. 敌人（6 个敌人，3 Melee + 3 Ranged，组件完整）
+  9. Reward 三选一（Melee/Ranged 击杀均触发，TimeScale=0，选择后 +1 背包）
+  10. 地图/空气墙（Spawn→Ground→Platforms→FinishGate 路径完整）
+  11. Tools 菜单（4 安全主菜单 + 2 Legacy 子菜单）
+- **测试结果**：
+  - Console 红色 Error = 0
+  - 所有 11 项 PASS
+  - 66 个 cosmetic warning（缺描述/图标）— 不影响功能
+  - 核心玩法闭环可运行（背包/卡牌/敌人/奖励/Combo）
+- **未测试**：需手动交互的 UI 操作（B 键开背包/滚轮/点击/Combo UI 视觉/敌人动画）
+- **结论**：项目可作为后续功能开发基线
+- **下一步**：新功能开发或 PlayerController2D 重构
+
+---
+
+### 2026-06-01 | Stage 11D — Archive Legacy Card Assets
+- **用户需求**：将旧 Strike/Guard/Heal/Focus.asset 从 Cards 根目录归档到 Legacy，避免误导用户
+- **修改文件**：
+  - 移动资产：Strike.asset → Assets/Data/Cards/Legacy/Strike.asset
+  - 移动资产：Guard.asset → Assets/Data/Cards/Legacy/Guard.asset
+  - 移动资产：Heal.asset → Assets/Data/Cards/Legacy/Heal.asset
+  - 移动资产：Focus.asset → Assets/Data/Cards/Legacy/Focus.asset
+  - 修改 `Assets/Editor/Cardwin/CardLibraryWindow.cs` — 增加 _legacyCards 列表 / _showLegacy 开关（默认 false）/ [Legacy] 标签 / Legacy 禁止编辑 / SyncCardDatabase 排除 Legacy
+  - 修改 `Assets/Editor/Cardwin/CardConfigValidator.cs` — ScanCardDataAssets 排除 Legacy / 新增 ScanLegacyCardAssets / 新增 CheckLegacyAssets / Validate 调用新方法
+  - 更新 `CLEANUP_PLAN.md` — 记录 Stage 11D 完成
+  - 更新 `DEVELOPMENT_LOG.md`（本文档）
+  - 更新 `SYSTEM_INDEX.md`
+  - 更新 `TODO.md`
+- **新增类**：无（仅修改现有类）
+- **新增函数**：CardLibraryWindow（Refresh 重构 / FilteredCards 改为 getter / DrawLeftPanel+DrawRightPanel+DrawBottomBar+SyncCardDatabase 适配 Legacy） CardConfigValidator（ScanLegacyCardAssets / CheckLegacyAssets）
+- **Unity 挂载方式**：无新挂载
+- **测试步骤**：
+  1. 验证 Assets/Data/Cards/ 根目录只剩 C001~C012 + CardDatabase
+  2. 验证 Assets/Data/Cards/Legacy/ 有 4 个旧资产
+  3. 运行 Validate Card Configs → scanned=12 legacy=4 errors=0
+  4. CardDatabase 12 张正式卡，无 Legacy 引用
+- **已知问题**：无
+---
+
+### 2026-06-01 | Stage 12B.1 — Fix Player Death State (Hide + Disable)
+- **用户需求**：修复 Player 死亡后仍可行动/可见的问题
+- **根因**：GameOverController 仅调用 SetInputLocked，未隐藏 Sprite、禁用 Collider、停止 Rigidbody
+- **修改文件**：
+  - `Assets/Scripts/Combat/PlayerController2D.cs` — 新增 `_isDead` 字段 / `SetDead(bool)` / Update 中 `_isDead` early return / FixedUpdate 中 `_isDead` zero velocity guard
+  - `Assets/Scripts/UI/GameOverController.cs` — 新增 `Instance` 静态引用 + `HandlePlayerDeath()` 静态入口 + `TriggerGameOver()` / `OnPlayerDeath` 中 `SetDead(true)` 替代 `SetInputLocked(true)`
+  - `Assets/Scripts/Combat/Health.cs` — `Die()` 中 Player 死亡直接调用 `GameOverController.HandlePlayerDeath()`
+- **Player 死亡后禁用项**：SpriteRenderer.enabled=false / Collider2D.enabled=false / Rigidbody2D.simulated=false / Rigidbody2D.velocity=0 / _inputLocked=true / _isDead=true / Update/FixedUpdate early return
+- **健康检查更新**：移除了 Health.cs 中的 AnyDeath 静态事件（改为直接调用），移除了 PlayerController2D 中的 ShowGameOver 辅助方法
+- **测试**：Play Mode 中 TakeDamage(999) → [Health] Death target=Player → GameOverPanel 出现 → Sprite 隐藏 → Collider 禁用 → 无法移动
+- **已知问题**：MCP execute_code 使用 cached 编译程序集，验证时需确保场景已保存并刷新
+- **下一步**：新功能开发
+
+---
+
+### 2026-06-01 | Stage 12B — Player Death / Game Over / Retry Flow
+- **用户需求**：Player HP<=0 → GameOverPanel / Retry / Load Save / Main Menu / Quit
+- **修改文件**：
+  - 新增 `Assets/Scripts/UI/GameOverController.cs` — 监听 Health.OnDeath / IsGameOver 静态标记 / Retry/LoadSave/MainMenu/Quit 逻辑
+  - 修改 `Assets/Scripts/Combat/Health.cs` — Die() 中 Player 不 Destroy (检查 tag==Player)
+  - 修改 `Assets/Scripts/Core/GameFlowManager.cs` — 新增 RetryCurrentScene()
+  - 修改 `Assets/Scripts/UI/PauseMenuController.cs` — Update 中检查 GameOverController.IsGameOver 阻止 Esc
+  - 修改 `Assets/Scenes/Demo_Combat.unity` — Canvas 新增 GameOverPanel (Retry/LoadSave/MainMenu/Quit) + GameOverController
+- **新增类**：GameOverController
+- **新增函数**：GameOverController.Start/OnPlayerDeath/ShowGameOverPanel/UpdateLoadSaveButton/OnRetry/OnLoadSave, GameFlowManager.RetryCurrentScene
+- **测试结果**：
+  - Player HP<=0 → [Health] Death target=Player → [GameOver] Player died. → Show panel.
+  - Death后: 输入锁定 / B键不打开背包 / Esc不打开Pause
+  - Retry → Demo_Combat重载 / HP=50 / IsGameOver=False
+  - Save(HP=42,Pos=20,2) → Kill → LoadSave → 恢复HP=42, Pos=(20,2) ✓
+  - GameOver/Pause互斥 ✓
+  - Console Error = 0
+- **已知问题**：无
+- **下一步**：新功能开发
+
+---
+
+### 2026-06-01 | Stage 12A (v3) — MainMenu Two-Panel + Save Select + Confirm
+- **用户需求**：主界面精简为 New Game/Continue/Quit，Continue 跳转 SaveSelectPanel，新增 ConfirmPanel 确认删除/覆盖
+- **修改文件**：
+  - 重写 `Assets/Scripts/UI/MainMenuController.cs` — 两面板管理 + SaveSelectMode 枚举 + RequestConfirm 确认流程 + SetupSlot 按模式显示按钮
+  - 重建 `Assets/Scenes/MainMenu.unity` — MainPanel (NewGame/Continue/Quit) + SaveSelectPanel (3槽+Back) + ConfirmPanel (Message/Confirm/Cancel)
+- **MainMenu 结构**：
+  - MainPanel：Cardwin标题 / New Game / Continue / Quit
+  - SaveSelectPanel：Select Save Slot标题 / Slot1-3行(Continue/Overwrite/NewGame+Delete) / Back
+  - ConfirmPanel：MessageText / Confirm / Cancel
+- **存档槽按钮规则**：
+  - Continue模式：空槽Continue禁用 / 有存档Continue+Delete可用
+  - NewGame模式：空槽New Game可用 / 有存档Overwrite+Delete可用(Overwrite需确认)
+- **测试结果**：
+  - MainPanel 显示 New Game/Continue/Quit，不直接显示 3 个槽
+  - Continue 无存档时置灰
+  - Continue → SaveSelectPanel，显示存档摘要
+  - New Game → SaveSelectPanel(NewGame模式)，空槽显示 New Game
+  - Back 返回主界面
+  - Delete 弹 ConfirmPanel 确认
+  - Overwrite 弹 ConfirmPanel 确认
+  - PausePanel 显示 Current Slot: X
+  - Console Error = 0
+- **已知问题**：无
+- **下一步**：新功能开发
+
+---
+
+### 2026-06-01 | Stage 12A (v2) — MainMenu Scene + 3 Save Slots + Pause Save System
+- **用户需求**：升级单存档为三存档槽，每槽支持 New/Continue/Overwrite/Delete，互不覆盖
+- **修改文件**：
+  - 修改 `Assets/Scripts/Save/GameSaveData.cs` — 新增 slotIndex / savedAt / gameVersion
+  - 新增 `Assets/Scripts/Save/SaveSlotInfo.cs` — 存档摘要数据结构
+  - 重写 `Assets/Scripts/Save/SaveSystem.cs` — 多槽位支持，接口改为5个（GetSavePath/HasSave/Save/TryLoad/DeleteSave/GetAllSlotInfos），路径改为 cardwin_save_slot_X.json
+  - 重写 `Assets/Scripts/Core/GameFlowManager.cs` — 新增 currentSlotIndex / NewGame(slot) / ContinueGame(slot) / OverwriteGame(slot) / DeleteSaveSlot(slot)
+  - 重写 `Assets/Scripts/UI/MainMenuController.cs` — 3 槽 UI 管理 / Continue/Overwrite/Delete 按钮显隐 / 确认对话框
+  - 修改 `Assets/Scripts/UI/PauseMenuController.cs` — 新增 currentSlotText / Save 显示 "Saved to Slot X"
+  - 重建 `Assets/Scenes/MainMenu.unity` — 3 个槽行 + New/Continue/Overwrite/Delete 按钮 + Quit
+  - 修改 `Assets/Scenes/Demo_Combat.unity` — PausePanel 新增 CurrentSlotText
+- **存档路径**：`Application.persistentDataPath/cardwin_save_slot_1.json` ~ `slot_3.json`
+- **测试结果**：
+  - 3 空槽显示 Empty，New Game 可用，Continue/Overwrite/Delete 隐藏
+  - Slot 1 New Game → Save → 文件 cardwin_save_slot_1.json 生成，Slot 2 不受影响
+  - Slot 2 New Game → Save → cardwin_save_slot_2.json 独立
+  - Continue Slot 1 → 恢复位置(15,0) + HP=40/50 + Inventory=240
+  - Delete 有 EditorUtility.DisplayDialog 确认
+  - Overwrite 有确认
+  - Console Error = 0
+- **已知问题**：无
+- **下一步**：新功能开发
+
+---
+
+### 2026-06-01 | Stage 12A — MainMenu Scene + Pause Menu + Save & Continue
+- **用户需求**：新增游戏外壳（主菜单/暂停菜单/单存档/保存继续）
+- **修改文件**：
+  - 新增 `Assets/Scripts/Save/GameSaveData.cs` — 存档数据结构
+  - 新增 `Assets/Scripts/Save/SaveSystem.cs` — JSON 存档读写系统
+  - 新增 `Assets/Scripts/Core/GameFlowManager.cs` — 全局流程管理（NewGame/Continue/Save/ReturnToMainMenu/Quit/ApplySave）
+  - 新增 `Assets/Scripts/UI/MainMenuController.cs` — 主菜单 UI 控制
+  - 新增 `Assets/Scripts/UI/PauseMenuController.cs` — 暂停菜单（Esc/PausePanel/Resume/Save/MainMenu/Quit）
+  - 修改 `Assets/Scripts/UI/MagazineEditUI.cs` — 新增 public IsOpen 属性
+  - 新增 `Assets/Scenes/MainMenu.unity` — 主菜单场景
+  - 修改 `Assets/Scenes/Demo_Combat.unity` — Canvas 下新增 PausePanel + PauseMenuController
+- **新增类**：GameSaveData, CardStackSaveData, SaveSystem, GameFlowManager, MainMenuController, PauseMenuController
+- **新增函数**：SaveSystem.HasSave/Save/TryLoad/DeleteSave/GetSavePath, GameFlowManager.Instance/NewGame/ContinueGame/SaveCurrentGame/ReturnToMainMenu/QuitGame/ApplySaveAfterSceneLoaded, PauseMenuController.TogglePause/OnResume/OnSave/HidePausePanel
+- **Unity 挂载方式**：
+  - MainMenu.unity: Canvas 挂载 MainMenuController + GameFlowManager
+  - Demo_Combat.unity: Canvas 挂载 PauseMenuController，PausePanel 子物体
+- **测试步骤**：
+  1. MainMenu 场景显示标题+3 按钮，Continue 无存档时置灰
+  2. New Game → 进入 Demo_Combat
+  3. 按 Esc → PausePanel 出现，TimeScale=0，玩家输入锁定
+  4. Save → hintText 显示 "Saved"，生成 cardwin_save.json
+  5. Main Menu → 返回主菜单，Continue 可点击
+  6. Continue → 进入 Demo_Combat，恢复位置/HP/Inventory/Loadout
+  7. Quit → Editor 停止 Play
+- **已知问题**：无
+- **下一步**：新功能开发

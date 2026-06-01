@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e724b40ffe5086147b74fe8b844a5534, type: 3}
+  m_Name: C011_Weakness_Mark
+  m_EditorClassIdentifier: 
+  cardId: C011
+  cardName: Weakness Mark
+  cardType: 3
+  rarity: 1
+  icon: {fileID: 0}
+  damage: 0
+  block: 0
+  heal: 0
+  focusGain: 2000
+  leftClickEffect: 5
+  rightClickEffect: 5
+  projectilePrefab: {fileID: 0}
+  description: 
+  goodCost: 0
+  evilCost: 1
+  baseEffectDescription: "\u6807\u8BB0\u6613\u4F24"
+  finalValueRaw: 20%
+  finalValue: 20
+  valueUnit: "\u6613\u4F24%"
+  cooldownLimit: "\u6301\u7EED 4 \u79D2"
+  role: "Boss/\u7CBE\u82F1"
+  riskNotes: "\u6613\u4F24\u6548\u679C\u76EE\u524D\u672A\u5B9E\u73B0"
+  useTarget: 0
+  isImportedFromCsv: 1

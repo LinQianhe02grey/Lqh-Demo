@@ -10,19 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e724b40ffe5086147b74fe8b844a5534, type: 3}
-  m_Name: Guard
+  m_Name: Heal
   m_EditorClassIdentifier: 
-  cardId: Guard_001
-  cardName: Guard
-  cardType: 1
+  cardId: Heal_001
+  cardName: Heal
+  cardType: 2
   rarity: 0
   icon: {fileID: 0}
-  damage: 5
-  block: 10
-  heal: 0
+  damage: 0
+  block: 0
+  heal: 12
   focusGain: 0
-  leftClickEffect: 1
-  rightClickEffect: 2
+  leftClickEffect: 3
+  rightClickEffect: 3
   projectilePrefab: {fileID: 5967733766968780224, guid: a471771a7fafb254bba5aa2d75ead477, type: 3}
-  description: "\u5DE6\u952E\u53D1\u5C04\u4F4E\u4F24\u5BB3\u5B50\u5F39\uFF0C\u53F3\u952E\u83B7\u5F97
-    10 \u70B9\u62A4\u76FE\u3002"
+  description: "\u5DE6\u952E\u53D1\u5C04\u4F4E\u4F24\u5BB3\u5B50\u5F39\uFF0C\u53F3\u952E\u56DE\u590D
+     12 \u70B9\u751F\u547D\u3002"
+  useTarget: 1

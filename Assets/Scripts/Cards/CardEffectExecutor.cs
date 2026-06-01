@@ -112,7 +112,7 @@ namespace Cardwin.Cards
 
                 case CardEffectType.None:
                 default:
-                    Debug.Log($"[CardEffect] No effect for {effectType}");
+                    Debug.Log($"[CardEffect] No effect or unimplemented: {effectType}");
                     break;
             }
         }

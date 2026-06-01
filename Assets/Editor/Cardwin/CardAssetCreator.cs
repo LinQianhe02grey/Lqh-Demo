@@ -10,12 +10,19 @@ namespace Cardwin.EditorTools
         private const string CardDir = "Assets/Data/Cards";
         private const string ProjPrefabPath = "Assets/Prefabs/Projectiles/Projectile_Test.prefab";
 
-        [MenuItem("Tools/Cardwin/Create Basic Card Assets")]
+        [MenuItem("Tools/Cardwin/Legacy/Create Basic Card Assets")]
         public static void CreateBasicCards()
         {
             if (EditorApplication.isPlaying)
             {
                 EditorUtility.DisplayDialog("Error", "Cannot create cards while in Play Mode.", "OK");
+                return;
+            }
+
+            if (!EditorUtility.DisplayDialog("Legacy Tool Warning",
+                "This is a LEGACY tool. It creates old-format card assets (Strike/Guard/Heal/Focus) without C0xx prefix or CSV fields.\n\nPrefer using 'Tools > Cardwin > Import Cards From CSV' instead.\n\nContinue anyway?",
+                "Continue", "Cancel"))
+            {
                 return;
             }
 

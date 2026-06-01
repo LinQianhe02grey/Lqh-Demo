@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using Cardwin.UI;
 
 namespace Cardwin.Combat
 {
@@ -83,8 +84,17 @@ namespace Cardwin.Combat
         private void Die()
         {
             _isDead = true;
+            Debug.Log($"[Health] Death target={gameObject.name}");
             OnDeath?.Invoke();
-            Destroy(gameObject, 0.1f);
+
+            if (CompareTag("Player"))
+            {
+                GameOverController.HandlePlayerDeath();
+            }
+            else
+            {
+                Destroy(gameObject, 0.1f);
+            }
         }
     }
 }

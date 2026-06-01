@@ -10,19 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e724b40ffe5086147b74fe8b844a5534, type: 3}
-  m_Name: Strike
+  m_Name: C007_Evil_Shot
   m_EditorClassIdentifier: 
-  cardId: Strike_001
-  cardName: Strike
+  cardId: C007
+  cardName: Evil Shot
   cardType: 0
-  rarity: 0
+  rarity: 2
   icon: {fileID: 0}
-  damage: 10
+  damage: 22
   block: 0
   heal: 0
   focusGain: 0
   leftClickEffect: 1
   rightClickEffect: 1
-  projectilePrefab: {fileID: 5967733766968780224, guid: a471771a7fafb254bba5aa2d75ead477, type: 3}
-  description: "\u53D1\u5C04\u4E00\u679A\u666E\u901A\u5B50\u5F39\uFF0C\u9020\u6210
-    10 \u70B9\u4F24\u5BB3\u3002"
+  projectilePrefab: {fileID: 0}
+  description: 
+  goodCost: 0
+  evilCost: 3
+  baseEffectDescription: "\u6781\u6076\u653B\u51FB"
+  finalValueRaw: 22.0
+  finalValue: 22
+  valueUnit: "\u4F24\u5BB3"
+  cooldownLimit: "\u5F39\u5939\u5185\u6700\u591A 1 \u5F20"
+  role: "\u9AD8\u98CE\u9669\u9AD8\u6536\u76CA"
+  riskNotes: "\u9AD8\u6076\u6D88\u8017"
+  useTarget: 0
+  isImportedFromCsv: 1

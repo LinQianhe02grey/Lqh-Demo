@@ -17,7 +17,28 @@ namespace Cardwin.Inventory
         public List<CardData> ownedCards = new();
 
         public CardDatabase defaultDatabase;
-        private bool _testStockReset;
+        public bool useTestStock = true;
+        public bool resetTestStockOnStart = true;
+        private bool _hasInitializedThisRun;
+
+        public void InitializeForRun(CardDatabase database)
+        {
+            if (_hasInitializedThisRun)
+                return;
+
+            if (useTestStock && resetTestStockOnStart)
+            {
+                ResetToTestStock(database);
+            }
+
+            _hasInitializedThisRun = true;
+            Debug.Log("[Inventory] InitializeForRun.");
+        }
+
+        public int GetOwnedTotalCount()
+        {
+            return ownedCards.Count;
+        }
 
         public void ResetToTestStock(CardDatabase database)
         {
@@ -40,24 +61,17 @@ namespace Cardwin.Inventory
                 return;
             }
 
-            CardData strike = database.GetByName("Strike");
-            CardData guard = database.GetByName("Guard");
-            CardData heal = database.GetByName("Heal");
-            CardData focus = database.GetByName("Focus");
+            int cardCount = 0;
+            var seenIds = new HashSet<string>();
+            foreach (CardData card in database.allCards)
+            {
+                if (card == null || !card.enabled) continue;
+                if (!seenIds.Add(card.cardId)) continue;
+                AddCards(card, 20);
+                cardCount++;
+            }
 
-            if (strike == null) Debug.LogError("[Inventory] Cannot find Strike in CardDatabase.");
-            if (guard == null) Debug.LogError("[Inventory] Cannot find Guard in CardDatabase.");
-            if (heal == null) Debug.LogError("[Inventory] Cannot find Heal in CardDatabase.");
-            if (focus == null) Debug.LogError("[Inventory] Cannot find Focus in CardDatabase.");
-
-            AddCards(strike, 20);
-            AddCards(guard, 20);
-            AddCards(heal, 20);
-            AddCards(focus, 20);
-
-            _testStockReset = true;
-
-            Debug.Log($"[Inventory] Test stock reset: Strike={GetCount(strike)}, Guard={GetCount(guard)}, Heal={GetCount(heal)}, Focus={GetCount(focus)}, Total={ownedCards.Count}");
+            Debug.Log($"[Inventory] Test stock reset all cards. Count={cardCount}, Each=20, Total={ownedCards.Count}");
         }
 
         public void AddCard(CardData card)
@@ -157,8 +171,26 @@ namespace Cardwin.Inventory
 
         public void EnsureTestStockIfEmpty(CardDatabase database)
         {
-            if (!_testStockReset || ownedCards.Count == 0)
+            if (ownedCards.Count == 0)
                 ResetToTestStock(database);
+        }
+
+        public void SetOwnedCardsFromCounts(Dictionary<CardData, int> counts)
+        {
+            ownedCards.Clear();
+            if (counts == null)
+                return;
+
+            foreach (var kvp in counts)
+            {
+                if (kvp.Key != null && kvp.Value > 0)
+                {
+                    for (int i = 0; i < kvp.Value; i++)
+                        ownedCards.Add(kvp.Key);
+                }
+            }
+
+            _hasInitializedThisRun = true;
         }
     }
 }

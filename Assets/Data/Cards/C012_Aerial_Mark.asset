@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e724b40ffe5086147b74fe8b844a5534, type: 3}
+  m_Name: C012_Aerial_Mark
+  m_EditorClassIdentifier: 
+  cardId: C012
+  cardName: Aerial Mark
+  cardType: 0
+  rarity: 0
+  icon: {fileID: 0}
+  damage: 0
+  block: 0
+  heal: 0
+  focusGain: 3000
+  leftClickEffect: 8
+  rightClickEffect: 8
+  projectilePrefab: {fileID: 0}
+  description: 
+  goodCost: 0
+  evilCost: 1
+  baseEffectDescription: "\u5BF9\u7A7A\u589E\u4F24"
+  finalValueRaw: 30%
+  finalValue: 30
+  valueUnit: "\u5BF9\u7A7A\u589E\u4F24%"
+  cooldownLimit: "\u53EA\u5BF9\u7A7A\u4E2D\u654C\u4EBA"
+  role: "\u89E3\u51B3\u7A7A\u4E2D\u602A"
+  riskNotes: "\u7A7A\u4E2D\u589E\u4F24\u76EE\u524D\u672A\u5B9E\u73B0"
+  useTarget: 0
+  isImportedFromCsv: 1

@@ -5,12 +5,12 @@ namespace Cardwin.EditorTools
 {
     public static class CardwinSceneBuilder
     {
-        [MenuItem("Tools/Cardwin/Rebuild Clean Demo Scene")]
+        [MenuItem("Tools/Cardwin/Legacy/Rebuild Clean Demo Scene")]
         public static void RebuildCleanDemoScene()
         {
             EditorUtility.DisplayDialog(
-                "Cardwin Scene Builder",
-                "SceneBuilder is disabled. Demo_Combat.unity is now the main working scene. Do not rebuild the scene unless explicitly requested.",
+                "Cardwin Scene Builder (Legacy)",
+                "This is a LEGACY tool. SceneBuilder is disabled. Demo_Combat.unity is the main working scene. Do not rebuild.",
                 "OK"
             );
 

@@ -2,6 +2,13 @@ using UnityEngine;
 
 namespace Cardwin.Cards
 {
+    public enum CardUseTarget
+    {
+        Enemy,
+        Self,
+        Both
+    }
+
     [CreateAssetMenu(fileName = "CardData_New", menuName = "Cardwin/Card Data")]
     public class CardData : ScriptableObject
     {
@@ -23,5 +30,36 @@ namespace Cardwin.Cards
 
         [TextArea]
         public string description;
+
+        [Header("Use Target")]
+        public CardUseTarget useTarget = CardUseTarget.Enemy;
+
+        [Header("CSV Imported Fields")]
+        public int goodCost;
+        public int evilCost;
+        public string baseEffectDescription;
+        public string finalValueRaw;
+        public float finalValue;
+        public string valueUnit;
+        public string cooldownLimit;
+        public string role;
+        public string riskNotes;
+        public bool enabled = true;
+        public bool implemented = true;
+        public bool isImportedFromCsv;
+
+        public bool IsOffensive
+        {
+            get
+            {
+                if (cardType == CardType.Attack)
+                    return true;
+                if (leftClickEffect == CardEffectType.Damage)
+                    return true;
+                if (rightClickEffect == CardEffectType.Damage)
+                    return true;
+                return false;
+            }
+        }
     }
 }

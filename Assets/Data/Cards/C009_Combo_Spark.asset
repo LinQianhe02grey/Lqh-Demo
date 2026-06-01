@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e724b40ffe5086147b74fe8b844a5534, type: 3}
+  m_Name: C009_Combo_Spark
+  m_EditorClassIdentifier: 
+  cardId: C009
+  cardName: Combo Spark
+  cardType: 2
+  rarity: 1
+  icon: {fileID: 0}
+  damage: 0
+  block: 0
+  heal: 0
+  focusGain: 0
+  leftClickEffect: 7
+  rightClickEffect: 7
+  projectilePrefab: {fileID: 0}
+  description: 
+  goodCost: 1
+  evilCost: 0
+  baseEffectDescription: "\u8FDE\u51FB\u6536\u76CA\u63D0\u5347"
+  finalValueRaw: 0
+  finalValue: 0
+  valueUnit: "\u6BCF\u5C42\u589E\u4F24%"
+  cooldownLimit: "\u6301\u7EED 5 \u79D2"
+  role: "\u9AD8\u624B\u5956\u52B1"
+  riskNotes: "\u8FDE\u51FB\u7CFB\u7EDF\u63A5\u53E3"
+  useTarget: 1
+  isImportedFromCsv: 1

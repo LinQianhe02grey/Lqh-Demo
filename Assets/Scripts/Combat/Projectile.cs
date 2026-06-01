@@ -112,6 +112,17 @@ namespace Cardwin.Combat
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            HandleHit(other);
+        }
+
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (collision.collider != null)
+                HandleHit(collision.collider);
+        }
+
+        private void HandleHit(Collider2D other)
+        {
             if (other.CompareTag("Player"))
                 return;
 
@@ -127,7 +138,7 @@ namespace Cardwin.Combat
             if (LayerMask.LayerToName(other.gameObject.layer) == "Trigger")
                 return;
 
-            Health health = other.GetComponent<Health>();
+            Health health = other.GetComponent<Health>() ?? other.GetComponentInParent<Health>();
             if (health != null)
             {
                 if (_usesCardEffect)
@@ -141,10 +152,12 @@ namespace Cardwin.Combat
                     health.TakeDamage(damage);
                 }
 
-                Debug.Log($"[Projectile] Hit target: {other.name}");
+                Debug.Log($"[Projectile] Hit target={other.name} effect={(_usesCardEffect ? _effectType.ToString() : "Damage")}");
                 Destroy(gameObject);
                 return;
             }
+
+            Debug.Log($"[Projectile] Hit object but no Health: {other.name} (layer={LayerMask.LayerToName(other.gameObject.layer)})");
 
             if (LayerMask.LayerToName(other.gameObject.layer) == "Ground")
             {

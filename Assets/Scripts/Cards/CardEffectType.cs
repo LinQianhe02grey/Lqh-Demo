@@ -6,6 +6,10 @@ namespace Cardwin.Cards
         Damage,
         Block,
         Heal,
-        Focus
+        Focus,
+        WeaknessMark,
+        QuickReload,
+        ComboSpark,
+        AerialMark
     }
 }

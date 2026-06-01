@@ -58,6 +58,9 @@ namespace Cardwin.Combat
         private bool _warnedMissingGroundCheck;
         private bool _warnedUnsetLayer;
         private bool _inputLocked;
+        private bool _isDead;
+        private ComboRatingSystem _comboRating;
+        private const float SafeGravityScale = 3f;
 
         private void Awake()
         {
@@ -65,7 +68,7 @@ namespace Cardwin.Combat
             _spriteRenderer = GetComponent<SpriteRenderer>();
             _health = GetComponent<Health>();
 
-            _rb.freezeRotation = true;
+            EnsureRigidbodySetup();
 
             if (groundCheck == null)
                 FindGroundCheckIfMissing();
@@ -105,6 +108,10 @@ namespace Cardwin.Combat
             if (magazineEditUI == null)
                 magazineEditUI = FindObjectOfType<MagazineEditUI>();
 
+            _comboRating = GetComponent<ComboRatingSystem>();
+            if (_comboRating == null)
+                Debug.LogError("[PlayerController2D] Missing ComboRatingSystem on Player.");
+
             if (magazineEditUI == null)
                 Debug.LogError("[PlayerController2D] Missing MagazineEditUI on Canvas. Please add it in the Inspector.");
             else
@@ -112,10 +119,34 @@ namespace Cardwin.Combat
                 magazineEditUI.inventorySystem = inventorySystem;
                 magazineEditUI.magazineSystem = magazineSystem;
             }
+
+            InitializeInventoryAndLoadout();
+        }
+
+        private void InitializeInventoryAndLoadout()
+        {
+            if (inventorySystem != null && inventorySystem.defaultDatabase != null)
+                inventorySystem.InitializeForRun(inventorySystem.defaultDatabase);
+
+            CardDatabase db = inventorySystem != null ? inventorySystem.defaultDatabase : null;
+            if (db == null && magazineSystem != null)
+                db = magazineSystem.cardDatabase;
+
+            if (magazineSystem != null && db != null)
+                magazineSystem.InitializeDefaultLoadoutIfEmpty(db);
         }
 
         private void Update()
         {
+            if (_isDead)
+            {
+                _horizontalInput = 0f;
+                return;
+            }
+
+            if (Time.timeScale <= 0f && !_inputLocked)
+                return;
+
             _horizontalInput = Input.GetAxisRaw("Horizontal");
 
             if (_dashCooldownTimer > 0f)
@@ -144,13 +175,29 @@ namespace Cardwin.Combat
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    if (magazineSystem != null && magazineSystem.GetCurrentCard() != null)
+                    if (magazineSystem != null)
                     {
-                        magazineSystem.UseCurrentCardLeft();
+                        if (magazineSystem.IsReloading)
+                        {
+                            Debug.Log("[PlayerController2D] Cannot fire while reloading.");
+                        }
+                        else if (!magazineSystem.HasUsableCurrentCard())
+                        {
+                            Debug.Log("[PlayerController2D] Cannot fire: magazine empty.");
+                        }
+                        else
+                        {
+                            CardData usedCard = magazineSystem.GetCurrentCard();
+                            bool success = magazineSystem.UseCurrentCardLeft();
+                            if (_comboRating != null && usedCard != null)
+                                _comboRating.RegisterCardUse(usedCard, usedLeftClick: true, success);
+                        }
                     }
                     else if (testCard != null && _cardExecutor != null)
                     {
                         _cardExecutor.ExecuteLeft(testCard, cardContext);
+                        if (_comboRating != null)
+                            _comboRating.RegisterCardUse(testCard, usedLeftClick: true, true);
                     }
                     else
                     {
@@ -160,13 +207,29 @@ namespace Cardwin.Combat
 
                 if (Input.GetMouseButtonDown(1))
                 {
-                    if (magazineSystem != null && magazineSystem.GetCurrentCard() != null)
+                    if (magazineSystem != null)
                     {
-                        magazineSystem.UseCurrentCardRight();
+                        if (magazineSystem.IsReloading)
+                        {
+                            Debug.Log("[PlayerController2D] Cannot use self card while reloading.");
+                        }
+                        else if (!magazineSystem.HasUsableCurrentCard())
+                        {
+                            Debug.Log("[PlayerController2D] Cannot use self card: magazine empty.");
+                        }
+                        else
+                        {
+                            CardData usedCard = magazineSystem.GetCurrentCard();
+                            bool success = magazineSystem.UseCurrentCardRight();
+                            if (_comboRating != null && usedCard != null)
+                                _comboRating.RegisterCardUse(usedCard, usedLeftClick: false, success);
+                        }
                     }
                     else if (testCard != null && _cardExecutor != null)
                     {
                         _cardExecutor.ExecuteRight(testCard, cardContext);
+                        if (_comboRating != null)
+                            _comboRating.RegisterCardUse(testCard, usedLeftClick: false, true);
                     }
                 }
 
@@ -182,6 +245,13 @@ namespace Cardwin.Combat
 
         private void FixedUpdate()
         {
+            if (_isDead)
+            {
+                if (_rb != null && _rb.simulated)
+                    _rb.velocity = Vector2.zero;
+                return;
+            }
+
             if (_inputLocked)
             {
                 _rb.velocity = new Vector2(0f, _rb.velocity.y);
@@ -206,11 +276,14 @@ namespace Cardwin.Combat
 
         public void Jump()
         {
+            if (_inputLocked)
+                return;
+
             if (_jumpsRemaining <= 0)
                 return;
 
-            _rb.velocity = new Vector2(_rb.velocity.x, 0f);
-            _rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            EnsureRigidbodySetup();
+            _rb.velocity = new Vector2(_rb.velocity.x, jumpForce);
             _jumpsRemaining--;
         }
 
@@ -231,12 +304,52 @@ namespace Cardwin.Combat
 
         public void SetInputLocked(bool locked)
         {
+            if (_isDead)
+                return;
+
             _inputLocked = locked;
             if (locked && _rb != null)
             {
                 _rb.velocity = Vector2.zero;
                 _horizontalInput = 0f;
             }
+            else if (!locked)
+            {
+                EnsureRigidbodySetup();
+            }
+
+            Debug.Log($"[PlayerController2D] SetInputLocked={locked}");
+        }
+
+        private void ShowGameOver()
+        {
+            var goc = FindObjectOfType<GameOverController>();
+            if (goc != null)
+                goc.TriggerGameOver();
+        }
+
+        public void SetDead(bool dead)
+        {
+            _isDead = dead;
+            _inputLocked = dead;
+
+            if (_rb != null)
+            {
+                _rb.velocity = Vector2.zero;
+                _rb.angularVelocity = 0f;
+                _rb.simulated = !dead;
+            }
+
+            if (_spriteRenderer != null)
+                _spriteRenderer.enabled = !dead;
+
+            var cols = GetComponents<Collider2D>();
+            foreach (var col in cols)
+                col.enabled = !dead;
+
+            _horizontalInput = 0f;
+
+            Debug.Log($"[PlayerController2D] SetDead={dead}");
         }
 
         public bool IsGrounded()
@@ -273,6 +386,25 @@ namespace Cardwin.Combat
                 Debug.LogWarning("[PlayerController2D] GroundCheck child not found. Create a child GameObject named 'GroundCheck' at the player's feet.");
                 _warnedMissingGroundCheck = true;
             }
+        }
+
+        private void EnsureRigidbodySetup()
+        {
+            if (_rb == null)
+                return;
+
+            _rb.bodyType = RigidbodyType2D.Dynamic;
+
+            if (_rb.gravityScale <= 0.01f)
+            {
+                _rb.gravityScale = SafeGravityScale;
+                Debug.Log($"[PlayerController2D] Restored Rigidbody2D.gravityScale={SafeGravityScale}");
+            }
+
+            if ((_rb.constraints & RigidbodyConstraints2D.FreezePositionY) != 0)
+                _rb.constraints &= ~RigidbodyConstraints2D.FreezePositionY;
+
+            _rb.freezeRotation = true;
         }
 
         private void OnDrawGizmosSelected()
