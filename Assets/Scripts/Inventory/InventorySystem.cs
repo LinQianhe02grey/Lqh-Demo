@@ -94,6 +94,25 @@ namespace Cardwin.Inventory
                 ownedCards.Add(card);
         }
 
+        /// <summary>
+        /// Adds a runtime-created card (e.g. a Lua bullet card built at run time) to the
+        /// backpack with the given count. Behaves like AddCards but is the explicit entry
+        /// point for cards that have no on-disk asset.
+        /// </summary>
+        public void AddRuntimeCard(CardData card, int count)
+        {
+            if (card == null || count <= 0)
+            {
+                Debug.LogWarning("[Inventory] AddRuntimeCard ignored (null card or count<=0).");
+                return;
+            }
+
+            for (int i = 0; i < count; i++)
+                ownedCards.Add(card);
+
+            Debug.Log($"[Inventory] AddRuntimeCard {card.cardName} x{count} (lua={card.isLuaBullet}).");
+        }
+
         public bool RemoveCard(CardData card)
         {
             if (card == null)

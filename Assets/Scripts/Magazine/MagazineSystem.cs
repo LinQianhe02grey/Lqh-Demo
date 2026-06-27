@@ -33,10 +33,35 @@ namespace Cardwin.Magazine
         public int LoadedCount => LoadedCards.Count;
         public int Capacity => capacity;
         public float ReloadProgress => IsReloading ? 1f - (_reloadTimer / reloadTime) : 1f;
+        public bool InfiniteEightLoopEnabled { get; set; }
+
+        /// <summary>
+        /// Force-replace the current magazine with 8 copies of the given attack card.
+        /// Enables infinite loop. Does NOT consume inventory.
+        /// </summary>
+        public void ForceLoadEightAttackCards(CardData attackCard)
+        {
+            if (attackCard == null)
+            {
+                Debug.LogError("[MagazineSystem] ForceLoadEightAttackCards failed: attackCard is null.");
+                return;
+            }
+
+            LoadedCards.Clear();
+            for (int i = 0; i < capacity; i++)
+                LoadedCards.Add(attackCard);
+
+            CurrentIndex = 0;
+            InfiniteEightLoopEnabled = true;
+
+            Debug.Log("[MagazineSystem] Force-loaded 8 attack bullets, infinite loop enabled.");
+            OnMagazineChanged?.Invoke();
+        }
 
         public event Action OnMagazineChanged;
         public event Action OnReloadStarted;
         public event Action OnReloadFinished;
+        public event Action<CardData, bool> OnCardConsumed;
 
         private float _reloadTimer;
         private bool _hasUserLoadoutInit;
@@ -346,11 +371,13 @@ namespace Cardwin.Magazine
                 return false;
             }
 
+            CardData firedCardSnapshot = card;
             Debug.Log($"[Magazine] UseLeft card={card.cardName} index={CurrentIndex}");
 
             if (cardExecutor != null && context != null)
                 cardExecutor.ExecuteLeft(card, context);
 
+            OnCardConsumed?.Invoke(firedCardSnapshot, false);
             AdvanceIndex();
             return true;
         }
@@ -370,11 +397,13 @@ namespace Cardwin.Magazine
                 return false;
             }
 
+            CardData firedCardSnapshot = card;
             Debug.Log($"[Magazine] UseRight card={card.cardName} index={CurrentIndex}");
 
             if (cardExecutor != null && context != null)
                 cardExecutor.ExecuteRight(card, context);
 
+            OnCardConsumed?.Invoke(firedCardSnapshot, true);
             AdvanceIndex();
             return true;
         }
@@ -396,8 +425,18 @@ namespace Cardwin.Magazine
 
             if (CurrentIndex >= LoadedCards.Count)
             {
-                Debug.Log("[Magazine] Magazine empty, starting reload");
-                StartReload();
+                if (InfiniteEightLoopEnabled)
+                {
+                    CurrentIndex = 0;
+                    CardData next = GetCurrentCard();
+                    Debug.Log($"[Magazine] Infinite loop: wrap to index=0 card={next?.cardName ?? "null"}");
+                    OnMagazineChanged?.Invoke();
+                }
+                else
+                {
+                    Debug.Log("[Magazine] Magazine empty, starting reload");
+                    StartReload();
+                }
             }
             else
             {

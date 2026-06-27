@@ -1,6 +1,6 @@
 # README_PROJECT_OVERVIEW.md — Cardwin Unity Demo 项目总览
 
-> 生成时间：2026-06-01 | Stage 12A（Stage 11A base + 11B/C/D + 12A）
+> 生成时间：2026-06-02 | Stage 12C（Stage 12A base + 12B + 12C Settings Menu）
 > **目标读者**：项目外开发者 / 新加入的团队成员
 
 ---
@@ -35,7 +35,7 @@
 | R | 手动换弹 |
 | B | 打开/关闭背包编辑面板 |
 | Esc | 关闭背包 / 打开暂停菜单（非背包状态时） |
-| Pause Menu | Resume / Save to Slot X / Main Menu / Quit |
+| Pause Menu | Resume / Save to Slot X / Settings / Main Menu / Quit |
 
 ### 主菜单操作
 
@@ -43,6 +43,7 @@
 |------|------|
 | New Game | 进入 SaveSelectPanel，选择槽位开始新游戏 |
 | Continue | 进入 SaveSelectPanel，选择已有存档槽继续 |
+| Settings | 打开 SettingsPanel（音量/全屏/分辨率） |
 | Quit | 退出游戏 |
 | SaveSelect Back | 返回主界面 |
 

@@ -48,6 +48,10 @@ namespace Cardwin.Cards
         public bool implemented = true;
         public bool isImportedFromCsv;
 
+        [Header("Lua Bullet (runtime channel)")]
+        public bool isLuaBullet;
+        public string luaBulletId;
+
         public bool IsOffensive
         {
             get

@@ -52,7 +52,7 @@
 
 ---
 
-## 下一阶段：Level Polish / Enemy Tuning
+## 下一阶段：待定
 
 - [ ] 打磨从 SpawnPoint_Player 向右推进的路线节奏
 - [ ] 调整平台高度差，避免极限跳跃
@@ -76,3 +76,24 @@
 - [x] Stage 11C：Post-Cleanup Regression Test — 11项回归PASS / 0 Console Error / CardDatabase=12 / Inventory=240 / Good/Evil正常 / Combo正常 / Enemy正常 / Reward正常 / Tools菜单正确 / 报告REGRESSION_TEST_REPORT.md已生成
 - [x] Stage 11D：Archive Legacy Card Assets — Strike/Guard/Heal/Focus.asset 归档到 Legacy/ / CardLibrary 增加 Show Legacy 开关 / Validate 排除 Legacy 目录 / CardDatabase 仅 12 张正式卡 / 0 资产删除
 - [x] Stage 12B.1：Fix Player Death — SetDead 禁用 Sprite/Collider/Rigidbody / Health.Die 直接调用 GameOverController.HandlePlayerDeath / Update+FixedUpdate _isDead guard
+- [x] Stage 12C：Settings Menu — Volume/Fullscreen/Resolution 设置界面 / MainMenu 和 PauseMenu 都可打开 / 设置保存到 Application.persistentDataPath/cardwin_settings.json
+- [x] Stage 12C.1：Settings UI Polish + Back Navigation Fix — 统一按钮尺寸 (260x48) / SettingsPanel (620x520) / SettingsSource 来源返回 / Esc 关闭 / Background 防遮挡 / Debug 日志
+- [x] Stage 12C.2：Settings Add Return/Resume + Real-Time Volume — 局内增加 Resume/MainMenu 按钮 / 音量滑块实时调整 AudioListener.volume
+- [x] Stage 12C.3：Fix Settings Menu Real Interaction — 修复重复 Open 日志 / RemoveAllListeners 防重复绑定 / 场景增加真实 ResumeButton+MainMenuButton / 按钮布局统一 (Apply -170,-210 / Back 0,-210 / Resume -155,-215 / MainMenu 0,-265) / SettingsPanel 620x560
+- [x] Stage 12C.4：Rebuild Settings UI Runtime Binding — EnsureUI() 自修复 / 移除所有 Inspector 序列化 UI 引用 / 14 个子控件完全代码创建 / 零依赖场景 YAML 子物体 / FindObjectOfType 兜底查找
+- [x] Stage 12C.5：Fix Settings EnsureUI NullReference + Rebuild Broken SettingsPanel — 修复 line 126 NullReference (_settingsPanel null) / 清除 SettingsPanel 所有子物体(破损 PPtr) / 移除 stale 序列化字段 / 删除 stray YAML 行 / Font fallback / Canvas 判空
+- [x] Stage 13A：Gothic Nun 2D Character Import & Rigid Bone Rig — 13 PNG 导入/拼装/骨骼/测试
+- [x] Stage 13B：Gothic Nun Game Integration — Player 视觉替换/Demo_Combat 接入/朝向兼容/0 Console Error
+- [x] Stage 13C：Animation Sample Import — 17 PNG 导入/5 AnimationClip/Animator Controller/AnimationBridge/Demo_Combat 视觉替换/Idle+Run+Jump验证
+- [x] Stage 13D：Gothic Nun Frame Animation Integration — 17 PNG 导入(Alpha处理)/8 AnimationClip/8状态Animator Controller/CardVisualEventBus/CardEffectExecutor视觉事件/GothicNunFrameVisual Prefab/Demo_Combat 视觉替换
+- [x] Stage 13E：Gothic Nun Frame Animation Reimport Fix — 桌面原始PNG逐字节复制/RawOriginal 17张/PNG RGB格式确认/仅阈值0.97白色→透明/按动作组统一缩放(size normalization)/重建8 Clip(0条Transform曲线)/ContactSheet/0 Console Error
+- [x] Stage 13F：Gothic Nun Idle1Fix Reimport — 从桌面重新导入14张(Format32bppArgb自带Alpha)/不去背景/Idle仅1帧/无缩放处理/重建8 Clip/0 Transform曲线/0 Console Error
+- [x] Stage 13G：Animation Transition Fix — 射击Clip缩至0.08s/强化Clip缩至0.12s/所有Transition Dur=0/枪动作出口重建→Jump/Run/Idle/AnimationBridge增加移动中断(CancelAll+CrossFade)/射击仅在地面静止时触发/0 Console Error
+- [x] Stage 13H：Shoot Recovery Fix — 射击Clip 0.4s/PlayerController2D增加_shootRecoveryLocked 0.4s硬直/Projectile→恢复调用链/硬直期间vx=0,FixedUpdate保护/FlipSprite锁定/AnimationBridge去除移动中断,增加MoveRequested/MoveRequested驱动exitT=1退出Run-Idle-Jump/空中恢复重力正常/死亡可打断
+- [x] Stage 14A：Air Shoot Feel Fix — 区分地面/空中射击(_shootStartedInAir)/空中两阶段恢复(0.1s锁惯性+0.3s 45%控制)/不清零水平速度/空中后坐力0.6/FlipSprite锁定/落地不重启硬直
+- [x] Stage 14B：Action System Refactor — 重命名SelfBuffRed→SelfActionRed/SelfBuffBlue→SelfActionBlue;动画层不执行卡牌逻辑;统一4种动作0.4s恢复(_actionRecoveryLocked);地面vx=0空中两阶段;Animator重命名Triggers/States;BlueSelfBuff→BlueSelfAction,RedSelfBuff→RedSelfDamage;未修改任何卡牌效果逻辑
+- [x] Stage 14C：back0 Background Integration — 导入back0.png到Art/Gothic/Backgrounds/;创建CameraBackgroundFitter自动Cover铺满;BG_Back0跟随相机Sorting Default/-1000;Environment/BackgroundRoot层级;0 Console Error
+- [x] Stage 14D：Ground Visual Replacement V2 — 三段式(左中右1774×887)/VR同层sibling统一scale 0.46/目标宽100.8(1.12×原90)/高4.08(厚)/顶对齐-2.50/重叠消缝0.04/Mid Tiled size 84.56/BC(1,1)未改/0 Console Error
+- [x] Stage 14E：Platform Layer1 Replacement — 3个Platform全部替换为layer1.png/Simple 1图per平台/scale适配宽度/top对齐BC
+- [x] Stage 14F：Shoot Facing Fix — EventBus传递shotDirection.x→Bridge FlipVisualToFace翻转Player root/FlipSprite恢复期guard/红蓝枪统一/自身动作不受影响
+- [x] Stage 14G：Walk-Backwards Fix + Enemy Sprite Replace — 修复恢复后_facingRight不同步导致倒着跑; 近战→melee.png/远程→ranged.png(PPU=32)/敌Collider/AI未改

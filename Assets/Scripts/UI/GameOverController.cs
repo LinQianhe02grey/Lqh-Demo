@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using Cardwin.Combat;
 using Cardwin.Core;
 using Cardwin.Save;
+using Cardwin.Player;
 
 namespace Cardwin.UI
 {
@@ -99,6 +100,12 @@ namespace Cardwin.UI
             IsGameOver = true;
             Debug.Log("[GameOver] Player died.");
 
+            // Authoritatively tear down the Confession Night rhythm mode BEFORE freezing
+            // time / showing the GameOver panel, so the (DontDestroyOnLoad) rhythm canvas
+            // can't cover the panel and stale rhythm state can't conflict with Retry.
+            // No-ops safely when rhythm mode is not active (Instance == null).
+            Cardwin.Modules.RhythmGameController.ForceStopRhythmMode("PlayerDeath");
+
             Time.timeScale = 0f;
 
             if (_playerController == null)
@@ -149,10 +156,44 @@ namespace Cardwin.UI
 
         private void OnRetryClicked()
         {
-            Debug.Log("[GameOver] Retry clicked.");
+            Debug.Log("[Retry] Retry clicked.");
+
+            // Close GameOver UI and restore time before recovering the player.
+            if (gameOverPanel != null)
+                gameOverPanel.SetActive(false);
+
             Time.timeScale = 1f;
             IsGameOver = false;
-            GameFlowManager.Instance.RetryCurrentScene();
+
+            // Belt-and-suspenders: ensure the rhythm mode is fully stopped before the
+            // in-place player revive (idempotent; no-ops if already stopped at death).
+            Cardwin.Modules.RhythmGameController.ForceStopRhythmMode("RetryBeforeReload");
+
+            // The Player is a global DontDestroyOnLoad object, so a scene reload does NOT
+            // rebuild it. Retry must explicitly clear its death runtime state via the
+            // unified PlayerRuntimeReset entry (revive + re-enable + respawn placement).
+            var reset = ResolvePlayerRuntimeReset();
+            if (reset != null)
+            {
+                reset.ResetForRetry();
+            }
+            else
+            {
+                Debug.LogError("[Retry] PlayerRuntimeReset not found on Player. Falling back to scene reload.");
+                GameFlowManager.Instance.RetryCurrentScene();
+            }
+        }
+
+        private PlayerRuntimeReset ResolvePlayerRuntimeReset()
+        {
+            var player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                var reset = player.GetComponent<PlayerRuntimeReset>();
+                if (reset != null)
+                    return reset;
+            }
+            return FindObjectOfType<PlayerRuntimeReset>();
         }
 
         private void OnLoadSaveClicked()

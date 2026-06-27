@@ -81,6 +81,24 @@ namespace Cardwin.Combat
             return _isDead;
         }
 
+        /// <summary>
+        /// Full revive used by death -> Retry. Clears the death flag, restores
+        /// health to max and clears transient block, then fires the existing UI
+        /// refresh events so HUD updates. Inventory / magazine / permanent data
+        /// are NOT touched here.
+        /// </summary>
+        public void ReviveToFull()
+        {
+            _isDead = false;
+            currentHealth = maxHealth;
+            currentBlock = 0;
+
+            OnHealed?.Invoke(maxHealth);
+            OnBlockChanged?.Invoke(currentBlock);
+
+            Debug.Log("[Retry] Health restored.");
+        }
+
         private void Die()
         {
             _isDead = true;

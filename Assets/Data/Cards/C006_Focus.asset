@@ -20,7 +20,7 @@ MonoBehaviour:
   damage: 0
   block: 0
   heal: 0
-  focusGain: 1
+  focusGain: 5000
   leftClickEffect: 4
   rightClickEffect: 4
   projectilePrefab: {fileID: 0}

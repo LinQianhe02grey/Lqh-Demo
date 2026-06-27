@@ -1,5 +1,7 @@
 using UnityEngine;
 using Cardwin.Combat;
+using Cardwin.Characters;
+using Cardwin.Lua;
 
 namespace Cardwin.Cards
 {
@@ -16,6 +18,14 @@ namespace Cardwin.Cards
         {
             if (card == null || context == null)
                 return;
+
+            // Lua bullet channel (Stage 57): intercept before the old Projectile path so
+            // the legacy projectile/card systems are completely untouched for normal cards.
+            if (card.isLuaBullet)
+            {
+                SpawnLuaBullet(card, context);
+                return;
+            }
 
             CardEffectType effect = card.leftClickEffect;
             Debug.Log($"[CardUse] Left card={card.cardName} effect={effect} target=Projectile");
@@ -45,12 +55,35 @@ namespace Cardwin.Cards
             if (proj != null)
             {
                 proj.Init(direction, card, effect, context);
+                TriggerProjectileVisual(effect, direction.x);
             }
             else
             {
                 Debug.LogError("[CardEffect] Projectile component missing.");
                 Destroy(projObj);
             }
+        }
+
+        private void SpawnLuaBullet(CardData card, PlayerCardContext context)
+        {
+            LuaBulletDefinition def = LuaBulletDatabase.Instance.GetBullet(card.luaBulletId);
+            if (def == null || !def.Enabled)
+            {
+                // Disabled / unknown Lua bullet: do NOT fall back to a normal projectile.
+                Debug.LogWarning($"[CardUse] Lua bullet '{card.luaBulletId}' is disabled or missing; not fired.");
+                return;
+            }
+
+            Vector2 direction = context.GetShootDirectionToMouse();
+            Vector3 spawnBase = context.firePoint != null
+                ? context.firePoint.position
+                : context.player.transform.position;
+            Vector3 spawnPos = spawnBase + (Vector3)(direction * 0.3f);
+            spawnPos.z = 0f;
+
+            Debug.Log($"[CardUse] Left card={card.cardName} effect=LuaBullet id={def.Id} target=LuaBulletHost");
+            LuaBulletHost.Spawn(def, spawnPos, direction, context);
+            TriggerProjectileVisual(CardEffectType.Damage, direction.x);
         }
 
         public void ExecuteRight(CardData card, PlayerCardContext context)
@@ -62,6 +95,23 @@ namespace Cardwin.Cards
             Debug.Log($"[CardUse] Right card={card.cardName} effect={effect} target=Self");
 
             ApplyEffectToTarget(card, effect, context.player, context);
+            TriggerSelfVisual(effect);
+        }
+
+        private static void TriggerProjectileVisual(CardEffectType effect, float shotDirectionX)
+        {
+            if (effect == CardEffectType.Damage)
+                CardVisualEventBus.Notify(VisualActionType.FireRed, shotDirectionX);
+            else
+                CardVisualEventBus.Notify(VisualActionType.FireBlue, shotDirectionX);
+        }
+
+        private static void TriggerSelfVisual(CardEffectType effect)
+        {
+            if (effect == CardEffectType.Damage)
+                CardVisualEventBus.Notify(VisualActionType.SelfActionRed, 0f);
+            else
+                CardVisualEventBus.Notify(VisualActionType.SelfActionBlue, 0f);
         }
 
         public void ApplyEffectToTarget(CardData card, CardEffectType effectType, GameObject target, PlayerCardContext context)

@@ -9,15 +9,18 @@ namespace Cardwin.Cards
         public Transform firePoint;
         public Health playerHealth;
         public GameObject defaultProjectilePrefab;
-        public int focusStacks;
+        
+        public event System.Action<int> OnFocusChanged;
+public int focusStacks;
 
-        public void AddFocus(int amount)
+public void AddFocus(int amount)
         {
             focusStacks += amount;
             Debug.Log($"[CardContext] Focus stacks: {focusStacks}");
+            OnFocusChanged?.Invoke(focusStacks);
         }
 
-        public float ConsumeFocusMultiplier()
+public float ConsumeFocusMultiplier()
         {
             if (focusStacks <= 0)
                 return 1f;
@@ -25,6 +28,7 @@ namespace Cardwin.Cards
             float multiplier = 1f + focusStacks * 0.5f;
             Debug.Log($"[CardContext] Consumed {focusStacks} Focus stacks, multiplier={multiplier}");
             focusStacks = 0;
+            OnFocusChanged?.Invoke(focusStacks);
             return multiplier;
         }
 

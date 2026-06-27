@@ -6,6 +6,7 @@ using Cardwin.Inventory;
 using Cardwin.Cards;
 using Cardwin.Magazine;
 using Cardwin.Save;
+using Cardwin.Settings;
 
 namespace Cardwin.Core
 {
@@ -45,6 +46,8 @@ namespace Cardwin.Core
 
             _instance = this;
             DontDestroyOnLoad(gameObject);
+
+            SettingsSystem.Load();
         }
 
         private void OnEnable()

@@ -25,6 +25,7 @@ MonoBehaviour:
   rightClickEffect: 5
   projectilePrefab: {fileID: 0}
   description: 
+  useTarget: 0
   goodCost: 0
   evilCost: 1
   baseEffectDescription: "\u6807\u8BB0\u6613\u4F24"
@@ -34,5 +35,6 @@ MonoBehaviour:
   cooldownLimit: "\u6301\u7EED 4 \u79D2"
   role: "Boss/\u7CBE\u82F1"
   riskNotes: "\u6613\u4F24\u6548\u679C\u76EE\u524D\u672A\u5B9E\u73B0"
-  useTarget: 0
+  enabled: 1
+  implemented: 1
   isImportedFromCsv: 1

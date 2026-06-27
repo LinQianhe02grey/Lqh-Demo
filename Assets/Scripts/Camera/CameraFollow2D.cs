@@ -60,5 +60,20 @@ namespace Cardwin.Cameras
                 _warnedMissingPlayer = true;
             }
         }
+
+        public void SnapToTarget()
+        {
+            if (target == null)
+            {
+                FindTargetIfMissing();
+                if (target == null)
+                    return;
+            }
+
+            Vector3 position = target.position + offset;
+            position.z = -10f;
+            transform.position = position;
+            _velocity = Vector3.zero;
+        }
     }
 }

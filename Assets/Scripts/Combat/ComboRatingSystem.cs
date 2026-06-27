@@ -67,10 +67,11 @@ namespace Cardwin.Combat
 
         private static string CalculateRank(int combo)
         {
+            if (combo >= 15) return "S";
             if (combo >= 10) return "A";
-            if (combo >= 6) return "B";
-            if (combo >= 3) return "C";
-            if (combo >= 1) return "D";
+            if (combo >= 6)  return "B";
+            if (combo >= 3)  return "C";
+            if (combo >= 1)  return "D";
             return "-";
         }
     }

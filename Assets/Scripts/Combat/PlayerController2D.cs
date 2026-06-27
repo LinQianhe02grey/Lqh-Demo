@@ -13,9 +13,16 @@ namespace Cardwin.Combat
         [Header("Movement")]
         public float moveSpeed = 7f;
 
+        [Header("External Modifiers (Module system)")]
+        [SerializeField] private float externalMoveSpeedMultiplier = 1f;
+        [SerializeField] private float externalFireRateMultiplier = 1f;
+        [SerializeField] private float baseFireInterval = 0.28f;
+
+        private float _nextAllowedFireTime;
+
         [Header("Jump")]
         public float jumpForce = 13f;
-        public int maxJumps = 2;
+        public int maxJumps = 1;
 
         [Header("Dash")]
         public float dashSpeed = 18f;
@@ -62,11 +69,27 @@ namespace Cardwin.Combat
         private ComboRatingSystem _comboRating;
         private const float SafeGravityScale = 3f;
 
+        private bool _actionRecoveryLocked;
+        private float _actionRecoveryEndTime;
+        private const float ActionRecoveryDuration = 0.4f;
+
+        private bool _actionStartedInAir;
+        private float _airActionInitialVelocityX;
+        private bool _airActionRecoilApplied;
+
+        [Header("Air Action Settings")]
+        [SerializeField] private float airActionFullLockDuration = 0.10f;
+        [SerializeField] private float airActionRecoveryDuration = 0.40f;
+        [SerializeField] private float airActionControlMultiplier = 0.45f;
+        [SerializeField] private float airActionRecoilSpeed = 0.6f;
+
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
             _spriteRenderer = GetComponent<SpriteRenderer>();
             _health = GetComponent<Health>();
+
+            maxJumps = 1;
 
             EnsureRigidbodySetup();
 
@@ -128,6 +151,11 @@ namespace Cardwin.Combat
             if (inventorySystem != null && inventorySystem.defaultDatabase != null)
                 inventorySystem.InitializeForRun(inventorySystem.defaultDatabase);
 
+            // Stage 57: add Lua-defined bullets (addToBackpack=true) into the backpack.
+            // Idempotent and additive — legacy cards/inventory are untouched.
+            if (inventorySystem != null)
+                Cardwin.Lua.LuaBulletCardBridge.AddInventoryBulletsToBackpack(inventorySystem);
+
             CardDatabase db = inventorySystem != null ? inventorySystem.defaultDatabase : null;
             if (db == null && magazineSystem != null)
                 db = magazineSystem.cardDatabase;
@@ -142,6 +170,13 @@ namespace Cardwin.Combat
             {
                 _horizontalInput = 0f;
                 return;
+            }
+
+            if (_actionRecoveryLocked && Time.time >= _actionRecoveryEndTime)
+            {
+                _actionRecoveryLocked = false;
+                bool wantRight = _horizontalInput > 0f;
+                _facingRight = !wantRight;
             }
 
             if (Time.timeScale <= 0f && !_inputLocked)
@@ -162,7 +197,7 @@ namespace Cardwin.Combat
                         _health.SetInvincible(false);
                 }
             }
-            else if (!_inputLocked)
+            else if (!_inputLocked && !_actionRecoveryLocked)
             {
                 if (IsGrounded())
                     _jumpsRemaining = maxJumps;
@@ -173,9 +208,11 @@ namespace Cardwin.Combat
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                     StartDash();
 
-                if (Input.GetMouseButtonDown(0))
+                if (Input.GetMouseButtonDown(0) && !Cardwin.Modules.RhythmGameController.IsRhythmModeActive)
                 {
-                    if (magazineSystem != null)
+                    float fireCooldown = baseFireInterval / externalFireRateMultiplier;
+                    if (Time.time < _nextAllowedFireTime) { }
+                    else if (magazineSystem != null)
                     {
                         if (magazineSystem.IsReloading)
                         {
@@ -189,6 +226,7 @@ namespace Cardwin.Combat
                         {
                             CardData usedCard = magazineSystem.GetCurrentCard();
                             bool success = magazineSystem.UseCurrentCardLeft();
+                            _nextAllowedFireTime = Time.time + fireCooldown;
                             if (_comboRating != null && usedCard != null)
                                 _comboRating.RegisterCardUse(usedCard, usedLeftClick: true, success);
                         }
@@ -205,7 +243,7 @@ namespace Cardwin.Combat
                     }
                 }
 
-                if (Input.GetMouseButtonDown(1))
+                if (Input.GetMouseButtonDown(1) && !Cardwin.Modules.RhythmGameController.IsRhythmModeActive)
                 {
                     if (magazineSystem != null)
                     {
@@ -252,6 +290,23 @@ namespace Cardwin.Combat
                 return;
             }
 
+            if (_actionRecoveryLocked)
+            {
+                if (_actionStartedInAir)
+                {
+                    float elapsed = ActionRecoveryDuration - (_actionRecoveryEndTime - Time.time);
+                    if (elapsed >= airActionFullLockDuration)
+                    {
+                        float targetVx = _horizontalInput * moveSpeed * externalMoveSpeedMultiplier * airActionControlMultiplier;
+                        _rb.velocity = new Vector2(targetVx, _rb.velocity.y);
+                    }
+                    return;
+                }
+
+                _rb.velocity = new Vector2(0f, _rb.velocity.y);
+                return;
+            }
+
             if (_inputLocked)
             {
                 _rb.velocity = new Vector2(0f, _rb.velocity.y);
@@ -265,7 +320,7 @@ namespace Cardwin.Combat
             }
             else
             {
-                _rb.velocity = new Vector2(_horizontalInput * moveSpeed, _rb.velocity.y);
+                _rb.velocity = new Vector2(_horizontalInput * moveSpeed * externalMoveSpeedMultiplier, _rb.velocity.y);
             }
         }
 
@@ -321,6 +376,32 @@ namespace Cardwin.Combat
             Debug.Log($"[PlayerController2D] SetInputLocked={locked}");
         }
 
+        public float HorizontalInput
+        {
+            get { return _horizontalInput; }
+        }
+
+        public bool IsActionRecoveryLocked
+        {
+            get { return _actionRecoveryLocked; }
+        }
+
+        public void StartActionRecovery()
+        {
+            _actionStartedInAir = !IsGrounded();
+            _actionRecoveryLocked = true;
+            _actionRecoveryEndTime = Time.time + ActionRecoveryDuration;
+
+            if (_actionStartedInAir && _rb != null && !_airActionRecoilApplied)
+            {
+                _airActionRecoilApplied = true;
+                _rb.velocity = new Vector2(
+                    _rb.velocity.x + (_facingRight ? -1f : 1f) * airActionRecoilSpeed,
+                    _rb.velocity.y
+                );
+            }
+        }
+
         private void ShowGameOver()
         {
             var goc = FindObjectOfType<GameOverController>();
@@ -350,6 +431,16 @@ namespace Cardwin.Combat
             _horizontalInput = 0f;
 
             Debug.Log($"[PlayerController2D] SetDead={dead}");
+        }
+
+        public void SetExternalMoveSpeedMultiplier(float multiplier)
+        {
+            externalMoveSpeedMultiplier = Mathf.Max(0.05f, multiplier);
+        }
+
+        public void SetExternalFireRateMultiplier(float multiplier)
+        {
+            externalFireRateMultiplier = Mathf.Max(0.05f, multiplier);
         }
 
         public bool IsGrounded()
@@ -425,6 +516,9 @@ namespace Cardwin.Combat
 
         private void FlipSprite()
         {
+            if (_actionRecoveryLocked)
+                return;
+
             if (_horizontalInput > 0f && !_facingRight)
             {
                 _facingRight = true;

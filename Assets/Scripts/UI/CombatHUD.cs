@@ -8,6 +8,17 @@ namespace Cardwin.UI
 {
     public class CombatHUD : MonoBehaviour
     {
+        [Header("Preview HUD (scene instance)")]
+        [SerializeField] private MagazinePreviewUI _magazinePreviewUI;
+
+        [Header("Combo Rank Display")]
+        [SerializeField] private ComboRankDisplay _comboRankDisplay;
+        [SerializeField] private Sprite rankSprite_D;
+        [SerializeField] private Sprite rankSprite_C;
+        [SerializeField] private Sprite rankSprite_B;
+        [SerializeField] private Sprite rankSprite_A;
+        [SerializeField] private Sprite rankSprite_S;
+
         private Health _playerHealth;
         private PlayerCardContext _cardContext;
         private MagazineSystem _magazineSystem;
@@ -17,7 +28,6 @@ namespace Cardwin.UI
         private Text _focusText;
         private Text _reloadText;
         private Text _comboText;
-        private MagazinePreviewUI _magazinePreviewUI;
         private ComboRatingSystem _comboRating;
 
         private Transform _hudRoot;
@@ -147,29 +157,33 @@ namespace Cardwin.UI
 
         private void EnsurePreviewPanel()
         {
-            Transform existing = _hudRoot.Find("PreviewPanel");
-            if (existing != null)
-                Destroy(existing.gameObject);
+            if (_magazinePreviewUI == null)
+            {
+                _magazinePreviewUI = FindFirstObjectByType<MagazinePreviewUI>();
+            }
 
-            GameObject container = new GameObject("PreviewPanel");
-            container.transform.SetParent(_hudRoot, false);
-            RectTransform rt = container.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0f);
-            rt.anchorMax = new Vector2(0.5f, 0f);
-            rt.pivot = new Vector2(0.5f, 0f);
-            rt.anchoredPosition = new Vector2(0f, 35f);
-            rt.sizeDelta = new Vector2(520f, 80f);
+            if (_magazinePreviewUI == null)
+            {
+                Debug.LogError("[CombatHUD] BulletPreviewHUD prefab instance is missing from the scene. "
+                    + "Place a BulletPreviewHUD under the Canvas.");
+                return;
+            }
 
-            HorizontalLayoutGroup hlg = container.AddComponent<HorizontalLayoutGroup>();
-            hlg.childAlignment = TextAnchor.MiddleCenter;
-            hlg.spacing = 12f;
-            hlg.childForceExpandWidth = false;
-            hlg.childForceExpandHeight = false;
-            hlg.childControlWidth = false;
-            hlg.childControlHeight = false;
+            _magazinePreviewUI.LoadBulletSprites();
 
-            _magazinePreviewUI = container.AddComponent<MagazinePreviewUI>();
-            Debug.Log("[CombatHUD] PreviewPanel created (3 slots only)");
+            // Only set self-target if not already assigned in Inspector
+            if (_magazinePreviewUI.selfTargetRect == null)
+            {
+                GameObject hud = GameObject.Find("PlayerStatusHUD");
+                if (hud != null)
+                {
+                    Transform eb = hud.transform.Find("HPBar/EmptyBase");
+                    if (eb != null)
+                        _magazinePreviewUI.selfTargetRect = eb.GetComponent<RectTransform>();
+                }
+            }
+
+            Debug.Log("[CombatHUD] BulletPreviewHUD bound.");
         }
 
         private void DisableFullBarIfExists()
@@ -306,9 +320,14 @@ namespace Cardwin.UI
             if (_comboText != null && _comboRating != null)
             {
                 if (_comboRating.IsActive && _comboRating.ComboCount > 0)
-                    _comboText.text = $"Combo: {_comboRating.ComboCount}\nRank: {_comboRating.CurrentRank}\nTime: {_comboRating.ComboTimer:F1}s";
+                    _comboText.text = $"Combo: {_comboRating.ComboCount}\nTime: {_comboRating.ComboTimer:F1}s";
                 else
                     _comboText.text = "Combo: 0\nRank: -";
+            }
+
+            if (_comboRankDisplay != null && _comboRating != null)
+            {
+                _comboRankDisplay.ApplyRankVisual(_comboRating.CurrentRank);
             }
 
             if (_bound && !_loggedFirstRefresh)

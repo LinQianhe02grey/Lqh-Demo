@@ -9,7 +9,7 @@ namespace Cardwin.Enemies
         private Transform _target;
 
         [Header("Offset")]
-        public Vector3 worldOffset = new Vector3(0f, 0.8f, 0f);
+        public Vector3 worldOffset = new Vector3(0f, 1.2f, 0f);
 
         private GUIStyle _style;
         private bool _initialized;
@@ -54,6 +54,9 @@ namespace Cardwin.Enemies
                 Destroy(this);
                 return;
             }
+
+            if (Time.timeScale <= 0f)
+                return;
 
             Vector3 worldPos = _target.position + worldOffset;
             Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);

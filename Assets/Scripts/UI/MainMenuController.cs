@@ -16,11 +16,16 @@ namespace Cardwin.UI
         public GameObject mainPanel;
         public Button newGameButton;
         public Button continueButton;
+        public Button settingsButton;
         public Button quitButton;
 
         [Header("Save Select Panel")]
         public GameObject saveSelectPanel;
         public Button backButton;
+
+        [Header("Settings Panel")]
+        public GameObject settingsPanel;
+        public SettingsMenuController settingsMenuController;
 
         [Header("Slot 1")]
         public Text slot1Info;
@@ -54,22 +59,46 @@ namespace Cardwin.UI
             ShowMainPanel();
 
             if (newGameButton != null)
+            {
+                newGameButton.onClick.RemoveAllListeners();
                 newGameButton.onClick.AddListener(OnNewGameClicked);
+            }
 
             if (continueButton != null)
+            {
+                continueButton.onClick.RemoveAllListeners();
                 continueButton.onClick.AddListener(OnContinueClicked);
+            }
+
+            if (settingsButton != null)
+            {
+                settingsButton.onClick.RemoveAllListeners();
+                settingsButton.onClick.AddListener(OpenSettings);
+            }
 
             if (quitButton != null)
+            {
+                quitButton.onClick.RemoveAllListeners();
                 quitButton.onClick.AddListener(() => GameFlowManager.Instance.QuitGame());
+            }
 
             if (backButton != null)
+            {
+                backButton.onClick.RemoveAllListeners();
                 backButton.onClick.AddListener(ShowMainPanel);
+            }
 
             if (confirmYesButton != null)
+            {
+                confirmYesButton.onClick.RemoveAllListeners();
                 confirmYesButton.onClick.AddListener(OnConfirmYes);
+            }
 
             if (confirmNoButton != null)
+            {
+                confirmNoButton.onClick.RemoveAllListeners();
                 confirmNoButton.onClick.AddListener(() => { if (confirmPanel != null) confirmPanel.SetActive(false); });
+            }
 
             RefreshMainPanelButtons();
         }
@@ -195,6 +224,28 @@ namespace Cardwin.UI
             }
 
             _pendingConfirmCallback = onConfirm;
+        }
+
+        private void OpenSettings()
+        {
+            Debug.Log("[MainMenu] Settings clicked.");
+
+            if (settingsMenuController == null)
+                settingsMenuController = FindObjectOfType<SettingsMenuController>(true);
+
+            if (settingsMenuController == null)
+            {
+                Debug.LogError("[MainMenu] SettingsMenuController not found.");
+                return;
+            }
+
+            bool opened = settingsMenuController.OpenFromMainMenu();
+
+            if (!opened)
+            {
+                Debug.LogError("[MainMenu] Settings open failed.");
+                if (mainPanel != null) mainPanel.SetActive(true);
+            }
         }
 
         private System.Action _pendingConfirmCallback;

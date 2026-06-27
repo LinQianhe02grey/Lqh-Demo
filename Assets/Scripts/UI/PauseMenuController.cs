@@ -16,8 +16,13 @@ namespace Cardwin.UI
         [Header("Buttons")]
         public Button resumeButton;
         public Button saveButton;
+        public Button settingsButton;
         public Button mainMenuButton;
         public Button quitButton;
+
+        [Header("Settings Panel")]
+        public GameObject settingsPanel;
+        public SettingsMenuController settingsMenuController;
 
         [Header("Hints")]
         public Text hintText;
@@ -34,20 +39,38 @@ namespace Cardwin.UI
                 pausePanel.SetActive(false);
 
             if (resumeButton != null)
+            {
+                resumeButton.onClick.RemoveAllListeners();
                 resumeButton.onClick.AddListener(OnResume);
+            }
 
             if (saveButton != null)
+            {
+                saveButton.onClick.RemoveAllListeners();
                 saveButton.onClick.AddListener(OnSave);
+            }
+
+            if (settingsButton != null)
+            {
+                settingsButton.onClick.RemoveAllListeners();
+                settingsButton.onClick.AddListener(OpenSettings);
+            }
 
             if (mainMenuButton != null)
+            {
+                mainMenuButton.onClick.RemoveAllListeners();
                 mainMenuButton.onClick.AddListener(() =>
                 {
                     Time.timeScale = 1f;
                     GameFlowManager.Instance.ReturnToMainMenu();
                 });
+            }
 
             if (quitButton != null)
+            {
+                quitButton.onClick.RemoveAllListeners();
                 quitButton.onClick.AddListener(() => GameFlowManager.Instance.QuitGame());
+            }
         }
 
         private void Update()
@@ -59,6 +82,9 @@ namespace Cardwin.UI
                 return;
 
             if (_magazineEditUI != null && _magazineEditUI.IsOpen)
+                return;
+
+            if (settingsMenuController != null && settingsMenuController.IsOpen)
                 return;
 
             TogglePause();
@@ -109,6 +135,28 @@ namespace Cardwin.UI
             GameFlowManager.Instance.SaveCurrentGame();
             if (hintText != null)
                 hintText.text = $"Saved to Slot {slot}.";
+        }
+
+        private void OpenSettings()
+        {
+            Debug.Log("[PauseMenu] Settings clicked.");
+
+            if (settingsMenuController == null)
+                settingsMenuController = FindObjectOfType<SettingsMenuController>(true);
+
+            if (settingsMenuController == null)
+            {
+                Debug.LogError("[PauseMenu] SettingsMenuController not found.");
+                return;
+            }
+
+            bool opened = settingsMenuController.OpenFromPauseMenu();
+
+            if (!opened)
+            {
+                Debug.LogError("[PauseMenu] Settings open failed.");
+                if (pausePanel != null) pausePanel.SetActive(true);
+            }
         }
 
         public void HidePausePanel()
