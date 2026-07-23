@@ -1,3 +1,4 @@
 # Cardwin Unity Demo
 
-A Unity card-based combat game demo.
+30%完成度的个人demo 以及 实习视频
+不同分支查看。
