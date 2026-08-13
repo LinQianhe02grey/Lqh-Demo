@@ -35,7 +35,7 @@ https://www.bilibili.com/video/BV1nkTD6wEp9/
 
 参与 H5 / Unity / Godot 项目中的玩法拆解、交互流程、关卡体验、资源接入与版本迭代，并整理策划文档、美术资源表和项目迭代记录。
 
-> 实习相关内容仅用于展示个人职责、非保密截图或视频；公司代码、商业资源及未公开内容不作为公开作品发布。
+ 
 
 ## What I Can Do
 
@@ -57,6 +57,4 @@ https://www.bilibili.com/video/BV1nkTD6wEp9/
 - Bilibili Demo: https://www.bilibili.com/video/BV1nkTD6wEp9/
 
 ---
-
-This repository is maintained as a **game design / gameplay development portfolio**.  
-重点不是展示代码量，而是展示从 **设计 → 原型 → 调试 → 迭代 → 可验证结果** 的完整过程。
+ 
