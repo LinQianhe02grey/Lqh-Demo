@@ -53,6 +53,6 @@ https://linqianhe02grey.itch.io/lifecountdown
 
 - Email: lliuyang586@gmail.com
 - GitHub: @LinQianhe02grey
-- Bilibili Demo: https://www.bilibili.com/video/BV1nkTD6wEp9/
+
 
 ---
