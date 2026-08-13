@@ -33,13 +33,13 @@ https://www.bilibili.com/video/BV1kngL6gELy/
 - 🎬 [Godot 休闲解谜小游戏｜视频展示](https://github.com/LinQianhe02grey/Lqh-Demo/blob/weipai-internship-page/weipai/videos/godot-eight-queens.mp4)
 - 🎬 [Unity 3D 休闲塔防｜视频展示](https://github.com/LinQianhe02grey/Lqh-Demo/blob/weipai-internship-page/weipai/videos/unity-3d-tower-defense.mp4)
 
-## What I Can Do
+## 个人优势
 
-- 战斗 / 玩法机制拆解与原型验证
-- Unity / C#、UE5、Godot 基础开发与调试
-- 行为树、Boss AI、技能系统与战斗流程搭建
-- 配置表、策划文档、美术资源需求与版本记录
-- AIGC / AI 辅助开发工作流
+- **策划与原型闭环**：能够从玩法机制拆解、规则设计到可玩原型验证，快速检验设计可行性。
+- **战斗系统实践**：具备技能、Boss AI、行为树、战斗流程与反馈设计的实际搭建经验。
+- **多引擎落地能力**：熟悉 Unity / C#、UE5、Godot，可独立完成基础功能验证、调试与迭代。
+- **文档与协作能力**：能够整理配置表、策划文档、美术资源需求及版本记录，支持跨职能协作。
+- **AI 辅助工作流**：能够使用 AI Agent 辅助项目分析、代码理解、文档整理与原型开发。
 
 ## Repository Structure
 
