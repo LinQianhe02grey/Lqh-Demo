@@ -8,22 +8,20 @@
 ## Featured Project — Cardwin
 
 **2D 横版动作 / 卡牌子弹构筑 Demo**  
-技术：Unity / C# / AI 辅助开发
+技术：Unity / C# / AI 辅助开发  
 🎬 Demo 视频：  
 https://www.bilibili.com/video/BV1nkTD6wEp9/
 
-
 ## 3D UE5 Combat Demo
-
-
 
 ## Internship
 
 **武汉微派网络科技有限公司｜游戏策划实习生｜2026.06 - 2026.08**
 
-参与 H5 / Unity / Godot 项目中的玩法拆解、交互流程、关卡体验、资源接入与版本迭代，并整理策划文档、美术资源表和项目迭代记录。
+参与 Unity / Godot 项目的玩法、交互与体验迭代。
 
- 
+- 🎬 [Godot 休闲解谜小游戏｜视频展示](https://github.com/LinQianhe02grey/Lqh-Demo/blob/weipai-internship-page/weipai/videos/godot-eight-queens.mp4)
+- 🎬 [Unity 3D 休闲塔防｜视频展示](https://github.com/LinQianhe02grey/Lqh-Demo/blob/weipai-internship-page/weipai/videos/unity-3d-tower-defense.mp4)
 
 ## What I Can Do
 
@@ -36,7 +34,7 @@ https://www.bilibili.com/video/BV1nkTD6wEp9/
 ## Repository Structure
 
 - `main`：个人 Demo / Cardwin 项目与开发记录
-- `weipai-internship-page`：实习展示页（仅展示可公开内容）
+- `weipai-internship-page`：实习视频展示
 
 ## Contact
 
@@ -45,4 +43,3 @@ https://www.bilibili.com/video/BV1nkTD6wEp9/
 - Bilibili Demo: https://www.bilibili.com/video/BV1nkTD6wEp9/
 
 ---
- 
