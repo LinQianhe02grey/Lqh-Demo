@@ -19,6 +19,11 @@ https://www.bilibili.com/video/BV1nkTD6wEp9/
 
 ## 3D UE5 Combat Demo
 
+🎬 Demo 视频：  
+https://www.bilibili.com/video/BV1kngL6gELy/
+
+
+
 ## Internship
 
 **武汉微派网络科技有限公司｜游戏策划实习生｜2026.06 - 2026.08**
