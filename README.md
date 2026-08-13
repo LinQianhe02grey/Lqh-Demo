@@ -46,6 +46,9 @@ https://www.bilibili.com/video/BV1kngL6gELy/
 - `main`：个人 Demo / Cardwin 项目与开发记录
 - `weipai-internship-page`：实习视频展示
 
+## GMTK 2026
+https://linqianhe02grey.itch.io/lifecountdown
+
 ## Contact
 
 - Email: lliuyang586@gmail.com
