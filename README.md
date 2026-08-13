@@ -41,6 +41,10 @@ https://www.bilibili.com/video/BV1kngL6gELy/
 - **文档与协作能力**：能够整理配置表、策划文档、美术资源需求及版本记录，支持跨职能协作。
 - **AI 辅助工作流**：能够使用 AI Agent 辅助项目分析、代码理解、文档整理与原型开发。
 
+
+## 枪击UI策划案
+https://my.feishu.cn/wiki/D87PwkKuKiyjVjkRIOfckVLTnTb
+
 ## Repository Structure
 
 - `main`：个人 Demo / Cardwin 项目与开发记录
