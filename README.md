@@ -8,14 +8,16 @@
 ## Unity Project — Cardwin
 
 **2D 横版动作 / 卡牌子弹构筑 Demo**  （本仓库源码）
-技术：Unity / C# / AI 辅助开发
-
 - **卡牌弹夹系统**：设计弹夹循环玩法，将卡牌构筑、牌序预览、消耗与换弹整合进实时战斗循环。
-- **数据驱动卡牌体系**：基于 **ScriptableObject + CSV 配置** 管理卡牌属性、战斗效果、弹夹与库存；配套开发 **CSV 导入、卡牌数据库重建、配置校验、卡牌库浏览**等 Unity Editor 工具，提升配置与迭代效率。
-- **模块化子弹系统**：通过 **StreamingAssets 配置 + C# 行为桥接**扩展穿透、追踪等特殊子弹，并将子弹参数与行为逻辑解耦，便于快速新增和验证战斗机制。
-
 🎬 Demo 视频：  
 https://www.bilibili.com/video/BV1nkTD6wEp9/
+
+---
+## 3D Unity Demo
+[星际弹珠（Orbit Breaker）分支](https://github.com/LinQianhe02grey/Lqh-Demo/tree/orbit-breaker/OrbitBreaker)：宇宙主题 3D 弹珠战斗 Demo，围绕高速弹射、随机机关与章鱼 Boss 战展开，包含 Windows Demo、可编辑 Unity 工程、设计文档及试玩视频。
+
+
+
 
 ## 3D UE5 Combat Demo
 
@@ -58,7 +60,3 @@ https://linqianhe02grey.itch.io/lifecountdown
 - Email: lliuyang586@gmail.com
 - GitHub: @LinQianhe02grey
 
-
----
-
-[星际弹珠（Orbit Breaker）分支](https://github.com/LinQianhe02grey/Lqh-Demo/tree/orbit-breaker/OrbitBreaker)：宇宙主题 3D 弹珠战斗 Demo，围绕高速弹射、随机机关与章鱼 Boss 战展开，包含 Windows Demo、可编辑 Unity 工程、设计文档及试玩视频。
