@@ -60,3 +60,5 @@ https://linqianhe02grey.itch.io/lifecountdown
 
 
 ---
+
+[星际弹珠（Orbit Breaker）分支](https://github.com/LinQianhe02grey/Lqh-Demo/tree/orbit-breaker/OrbitBreaker)：宇宙主题 3D 弹珠战斗 Demo，围绕高速弹射、随机机关与章鱼 Boss 战展开，包含 Windows Demo、可编辑 Unity 工程、设计文档及试玩视频。
