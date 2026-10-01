@@ -1055,3 +1055,10 @@ CardData(isLuaBullet) / 背包 → CardEffectExecutor.ExecuteLeft 发现 isLuaBu
 - H 修改：homing speed 10→25+Reload → Speed=25。已还原。
 - E Pierce 穿透 / F Homing 追踪：代码完成（PierceBehavior 每命中 RemainingPierce-- 至 0 回收；HomingBehavior MoveTowardsAngle 转向 + DamagePercentOfMaxHp），需真实聚焦 Play 观察物理帧。
 - 影响旧 Projectile / Cursed/Blessed/Confession / Boss / 玩家：**无**。UnityEditor-only API：**无**。
+
+
+## 星际弹珠（Orbit Breaker）独立工程
+- 路径：OrbitBreaker/星际弹珠-可编辑工程/OrbitBreaker。与仓库根目录 Cardwin 工程独立。
+- 自有脚本统一 OrbitBreaker 前缀与命名空间；玩法规则未变。入口为 OrbitBreakerModeMenu.DrawMain，构建入口为 OrbitBreakerWindowsBuild.Build。
+- 2026-10-01：上传迁移进行中，编译与分支推送待完成。
+

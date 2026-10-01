@@ -1,0 +1,15 @@
+快速开始
+1. 保留整个Demo 文件夹。
+2. Windows 64 位下双击OrbitBreaker.exe。
+3. 主菜单选择自由模式或战斗模式；Esc 可回菜单，主菜单 Esc 退出。
+
+操作：WASD移动，E靠近绿柱自动旋转，鼠标瞄准，左键锁定，Space发射。
+右键减慢游戏2秒，期间Space可保速改向并结束慢动作。
+Space需要胶囊：每4次有效碰撞或击杀1敌获得1次；上限3，冷却1秒，开局0。
+普通WASD不造成伤害；实际速度超过12才伤敌和免普通伤害，24可贯穿普通敌人。
+当前基础冲刺配置为24；绿柱、奖励洞和黑洞使用后消失。
+
+可编辑工程：Unity2022.3.62f2工程，场景Assets/Scenes/OrbitBreakerBattle.unity。
+打开源工程可能需要联网恢复Unity包和Git依赖；运行独立exe不需要Unity或MCP。
+修改参数：Tools > Orbit Breaker > 战斗参数编辑器；保存后Play。
+

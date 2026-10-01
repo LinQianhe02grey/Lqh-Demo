@@ -2566,3 +2566,10 @@
 - **新增文档**：`Docs/LuaBulletSpec.md`。更新 `SYSTEM_INDEX.md`(新增 §28)、`DEVELOPMENT_LOG.md`(本条)。
 - **Console 红色错误**：0
 ---
+
+
+## 星际弹珠（Orbit Breaker）独立工程
+- 路径：OrbitBreaker/星际弹珠-可编辑工程/OrbitBreaker。与仓库根目录 Cardwin 工程独立。
+- 自有脚本统一 OrbitBreaker 前缀与命名空间；玩法规则未变。入口为 OrbitBreakerModeMenu.DrawMain，构建入口为 OrbitBreakerWindowsBuild.Build。
+- 2026-10-01：上传迁移进行中，编译与分支推送待完成。
+

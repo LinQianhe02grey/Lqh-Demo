@@ -1,0 +1,6 @@
+﻿Unity引擎及官方包由Unity提供；保留原工程Packages清单/锁文件及缓存中可用的许可文件。
+Unity MCP：https://github.com/CoplayDev/unity-mcp
+锁定修订：30d22075093d1d35dfb0091c1c7550e9ad948577
+Roslyn与.NET辅助库：Assets/Plugins/Roslyn中的Microsoft.CodeAnalysis系列等DLL；来源项目 https://github.com/dotnet/roslyn 与 https://github.com/dotnet/runtime
+上述插件用于开发辅助，核心玩法由项目脚本实现。许可与版权归原作者，不将第三方工具声明为独立原创。
+美术几何、图鉴和短音效为项目程序生成。需求参考的弹珠机照片未作为游戏贴图分发。
