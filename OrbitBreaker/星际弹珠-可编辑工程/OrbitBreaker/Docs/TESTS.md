@@ -482,3 +482,9 @@
 - 当前分支 orbit-breaker；推送待完成。主界面追加文字和位置待用户回复。
 - 证据 Docs/UPLOAD01-static-verification.json；最新交接 Docs/HANDOFFS/2026-10-01_Codex_Upload.md。
 
+
+## UPLOAD01 上传结果
+- 2026-10-01：orbit-breaker 分支已推送至 https://github.com/LinQianhe02grey/Lqh-Demo/tree/orbit-breaker ，首提交 0556cd1。视频 Git LFS 240 MB 上传成功。
+- 上传完成；命名迁移静态检查通过，Unity 编译仍 NOT_RUN。主界面追加文字及位置待用户确认。
+- 下一步：收到文字与位置后完成该单项修改；如需重新构建，须获得运行 Unity 的授权。桌面原件保留。
+

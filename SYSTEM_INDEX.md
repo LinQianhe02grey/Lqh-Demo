@@ -1062,3 +1062,9 @@ CardData(isLuaBullet) / 背包 → CardEffectExecutor.ExecuteLeft 发现 isLuaBu
 - 自有脚本统一 OrbitBreaker 前缀与命名空间；玩法规则未变。入口为 OrbitBreakerModeMenu.DrawMain，构建入口为 OrbitBreakerWindowsBuild.Build。
 - 2026-10-01：上传迁移进行中，编译与分支推送待完成。
 
+
+## UPLOAD01 上传结果
+- 2026-10-01：orbit-breaker 分支已推送至 https://github.com/LinQianhe02grey/Lqh-Demo/tree/orbit-breaker ，首提交 0556cd1。视频 Git LFS 240 MB 上传成功。
+- 上传完成；命名迁移静态检查通过，Unity 编译仍 NOT_RUN。主界面追加文字及位置待用户确认。
+- 下一步：收到文字与位置后完成该单项修改；如需重新构建，须获得运行 Unity 的授权。桌面原件保留。
+
